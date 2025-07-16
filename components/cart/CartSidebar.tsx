@@ -20,8 +20,8 @@ interface CartItem {
 const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([
-    { id: 1, name: "아메리카노", image: "https://via.placeholder.com/64", quantity: 2, price: 4500 },
-    { id: 2, name: "카페 라떼", image: "https://via.placeholder.com/64", quantity: 1, price: 5000 },
+    { id: 1, name: "아메리카노", image: "https://www.biz-con.co.kr/upload/images/202501/400_20250122164028679_2.jpg", quantity: 2, price: 4500 },
+    { id: 2, name: "카페 라떼", image: "https://dh.aks.ac.kr/Edu/wiki/images/thumb/8/85/1893535467_J78QnDCd_C4ABC6E4B6F3B6BC.jpg/300px-1893535467_J78QnDCd_C4ABC6E4B6F3B6BC.jpg", quantity: 1, price: 5000 },
   ]);
 
   const handleRemoveItem = (id: number) => {
