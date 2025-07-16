@@ -11,10 +11,12 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
+import CartSidebar from "@/components/cart/CartSidebar";
 
 const Header = () => {
   const [isLogin, setLogin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const router = useRouter();
 
   return (
@@ -49,7 +51,11 @@ const Header = () => {
                   {isAdmin && <Button icon={Shield} text="관리자 페이지" />}
 
                   <Button icon={User} text="마이 페이지" />
-                  <Button icon={ShoppingCart} text="장바구니" />
+                  <Button
+                    icon={ShoppingCart}
+                    text="장바구니"
+                    onClick={() => setIsCartOpen(true)}
+                  />
                   <Button
                     icon={LogOut}
                     text="로그아웃"
@@ -61,6 +67,7 @@ const Header = () => {
           </div>
         </div>
       </header>
+      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 };
