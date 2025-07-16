@@ -43,7 +43,7 @@ const Header = () => {
                   text="로그인"
                   onClick={() => {
                     setLogin(true);
-                    router.push("/login");
+                    router.push("/member/login");
                   }}
                 />
               ) : (

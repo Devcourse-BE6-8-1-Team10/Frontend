@@ -1,4 +1,9 @@
+import { useRouter } from "next/navigation";
+import { LogIn } from "lucide-react";
 import { Modal } from "@/components/common/Modal";
+import { ModalContent } from "@/components/common/ModalContent";
+import { Input } from "@/components/common/Input";
+import { PrimaryButton } from "@/components/common/PrimaryButton";
 
 export function LoginModal({
   onClose,
@@ -7,10 +12,17 @@ export function LoginModal({
   onClose: () => void;
   onLoginSuccess: () => void;
 }) {
+  const router = useRouter();
+
   return (
     <Modal onClose={onClose}>
-      <div className="p-8 bg-white rounded-lg w-96">
-        <h2 className="text-xl font-bold mb-6 text-center">LOGIN</h2>
+      <ModalContent>
+        <div className="flex flex-col items-center mb-6">
+          <LogIn className="h-10 w-10 text-amber-600 mb-2" />
+          <h2 className="text-xl font-bold text-center text-gray-800">
+            로그인
+          </h2>
+        </div>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -18,34 +30,21 @@ export function LoginModal({
           }}
           className="space-y-5"
         >
-          <input
-            className="border w-full p-3 rounded"
-            placeholder="이메일"
-            type="email"
-          />
-          <input
-            className="border w-full p-3 rounded"
-            placeholder="비밀번호"
-            type="password"
-          />
-          <button
-            type="submit"
-            className="w-full bg-black text-white py-3 rounded"
-          >
-            로그인
-          </button>
+          <Input placeholder="이메일" type="email" />
+          <Input placeholder="비밀번호" type="password" />
+          <PrimaryButton type="submit">로그인</PrimaryButton>
         </form>
         <div className="mt-8 text-center text-sm text-gray-600">
-          아직 회원이 아니신가요?{" "}
+          아직 회원이 아니신가요?
           <button
             type="button"
-            className="text-black font-semibold hover:underline ml-1"
-            onClick={onClose}
+            className="text-amber-600 font-semibold hover:underline ml-1"
+            onClick={() => router.replace("/member/signup")}
           >
             회원가입
           </button>
         </div>
-      </div>
+      </ModalContent>
     </Modal>
   );
 }
