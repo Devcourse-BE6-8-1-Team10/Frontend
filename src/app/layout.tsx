@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className="flex flex-col min-h-screen">
         <CartProvider>
           <Header />
-          <main className="max-w-7xl mx-auto pb-14">{children}</main>
+            <main className="max-w-7xl mx-auto pb-14">{children}</main>
           <Footer />
         </CartProvider>
       </body>
