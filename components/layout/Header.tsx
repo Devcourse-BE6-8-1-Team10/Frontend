@@ -50,7 +50,11 @@ const Header = () => {
                 <div className="flex items-center space-x-4">
                   {isAdmin && <Button icon={Shield} text="관리자 페이지" />}
 
-                  <Button icon={User} text="마이 페이지" />
+                  <Button
+                    icon={User}
+                    text="마이 페이지"
+                    onClick={() => router.push("/member/mypage")}
+                  />
                   <Button
                     icon={ShoppingCart}
                     text="장바구니"
