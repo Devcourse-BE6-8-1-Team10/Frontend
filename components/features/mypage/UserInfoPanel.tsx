@@ -1,5 +1,6 @@
 import Button from "@/components/common/Button";
 import { Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function UserInfoPanel() {
   // 예시 데이터
@@ -9,6 +10,8 @@ export default function UserInfoPanel() {
     address: "서울시 강남구 테헤란로 123",
   };
 
+  const router = useRouter();
+
   return (
     <section className="bg-white shadow p-6 rounded">
       <div className="flex justify-between items-center mb-6">
@@ -16,7 +19,7 @@ export default function UserInfoPanel() {
         <Button
           icon={Pencil}
           text="정보 수정하기"
-          onClick={() => console.log("정보 수정")}
+          onClick={() => router.push("/member/mypage/edit")}
           className="border-amber-600 text-amber-600 hover:bg-amber-50"
         />
       </div>

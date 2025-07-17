@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="flex flex-col min-h-screen">
         <CartProvider>
           <Header />
           <main className="max-w-7xl mx-auto pb-14">{children}</main>
