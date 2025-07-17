@@ -76,7 +76,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cartItems, s
           ) : (
             <ul className="space-y-4">
               {cartItems.map((item) => (
-                <li key={item.product.id} className="flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-200">
+                <li key={item.product.id} className={`flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-200 ${item.product.isSoldOut ? 'opacity-50 grayscale' : ''}`}>
+                  {item.product.isSoldOut && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-10">
+                      <span className="text-white text-xl font-bold">SOLD OUT</span>
+                    </div>
+                  )}
                   <img src={item.product.image} alt={item.product.name} className="w-24 h-24 object-cover rounded-md mr-4 border border-gray-200" />
                   <div className="flex-1 flex flex-col justify-between">
                     <h3 className="font-semibold text-lg text-gray-800">{item.product.name}</h3>
@@ -84,14 +89,16 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cartItems, s
                     <div className="flex items-center mt-2">
                       <button
                         onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
-                        className="px-3 py-1 border border-gray-300 rounded-l-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200 cursor-pointer"
+                        className={`px-3 py-1 border border-gray-300 rounded-l-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200 ${item.product.isSoldOut ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                        disabled={item.product.isSoldOut}
                       >
                         -
                       </button>
                       <span className="px-4 py-1 border-t border-b border-gray-300 text-gray-800 font-medium">{item.quantity}</span>
                       <button
                         onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
-                        className="px-3 py-1 border border-gray-300 rounded-r-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200 cursor-pointer"
+                        className={`px-3 py-1 border border-gray-300 rounded-r-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200 ${item.product.isSoldOut ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                        disabled={item.product.isSoldOut}
                       >
                         +
                       </button>
@@ -100,7 +107,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cartItems, s
                   <div className="flex flex-col items-end justify-between h-full ml-4">
                     <button
                       onClick={() => handleRemoveItem(item.product.id)}
-                      className="text-red-500 hover:text-red-700 text-sm transition-colors duration-200, cursor-pointer"
+                      className={`text-red-500 hover:text-red-700 text-sm transition-colors duration-200 ${item.product.isSoldOut ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                      disabled={item.product.isSoldOut}
                     >
                       삭제
                     </button>
