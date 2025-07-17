@@ -21,17 +21,16 @@ const Button = ({
   onClick,
   className,
 }: ButtonProps) => {
-  const bgClass = bgColor ? `bg-[${bgColor}]` : "bg-white";
-  const hoverClass = hoverColor ? `hover:bg-[${hoverColor}]` : "hover:bg-gray-200";
-  const fontClass = fontColor ? `text-[${fontColor}]` : "text-gray-800";
+  const bgClass = bgColor || "bg-white";
+  const hoverClass = hoverColor || "hover:bg-gray-200";
+  const fontClass = fontColor || "text-gray-800";
 
   return (
     <button
       className={`
         flex 
         items-center
-        justify-center
-        w-full          
+        justify-center       
         px-4 py-2 
         rounded 
         transition 
