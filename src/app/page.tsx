@@ -1,5 +1,7 @@
-import Header from "@/components/layout/Header";
+import ProductPanel from "@/components/features/home/ProductPanel";
 
 export default function Home() {
-  return <></>;
+  return (
+      <ProductPanel/>
+  )
 }
