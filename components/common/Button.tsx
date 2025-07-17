@@ -31,6 +31,7 @@ const Button = ({
         flex 
         items-center
         justify-center       
+        cursor-pointer
         px-4 py-2 
         rounded 
         transition 

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Coffee,
@@ -12,11 +12,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
 import CartSidebar from "@/components/features/home/components/CartSidebar";
+import { useCart } from "@/components/features/home/context/CartContext";
 
 const Header = () => {
   const [isLogin, setLogin] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { isCartOpen, toggleCart, cartItems, setCartItems } = useCart();
   const router = useRouter();
 
   return (
@@ -58,7 +59,7 @@ const Header = () => {
                   <Button
                     icon={ShoppingCart}
                     text="장바구니"
-                    onClick={() => setIsCartOpen(true)}
+                    onClick={toggleCart}
                   />
                   <Button
                     icon={LogOut}
@@ -71,7 +72,7 @@ const Header = () => {
           </div>
         </div>
       </header>
-      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <CartSidebar isOpen={isCartOpen} onClose={toggleCart} cartItems={cartItems} setCartItems={setCartItems} />
     </>
   );
 };

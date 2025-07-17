@@ -4,40 +4,38 @@ import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {PrimaryButton} from "@/components/common/PrimaryButton";
 
+import { Product } from "../ProductPanel";
+
+interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  cartItems: CartItem[];
+  setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }
 
-interface CartItem {
-  id: number;
-  name: string;
-  image: string;
-  quantity: number;
-  price: number;
-}
+const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cartItems, setCartItems }) => {
 
-const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    { id: 1, name: "아메리카노", image: "https://www.biz-con.co.kr/upload/images/202501/400_20250122164028679_2.jpg", quantity: 2, price: 4500 },
-    { id: 2, name: "카페 라떼", image: "https://dh.aks.ac.kr/Edu/wiki/images/thumb/8/85/1893535467_J78QnDCd_C4ABC6E4B6F3B6BC.jpg/300px-1893535467_J78QnDCd_C4ABC6E4B6F3B6BC.jpg", quantity: 1, price: 5000 },
-  ]);
 
   const handleRemoveItem = (id: number) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    setCartItems((prevItems) => prevItems.filter((item) => item.product.id !== id));
   };
 
   const handleQuantityChange = (id: number, newQuantity: number) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(1, newQuantity) } : item
+        item.product.id === id ? { ...item, quantity: Math.max(1, newQuantity) } : item
       )
     );
   };
 
   const totalAmount = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + item.product.price * item.quantity,
     0
   );
 
@@ -69,59 +67,62 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       )}
       <div
         ref={sidebarRef}
-        className={`fixed top-0 right-0 h-full w-20/100 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50
+        className={`fixed top-0 right-0 h-full w-130 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 flex flex-col
           ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
-        <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-semibold">장바구니</h2>
-          <button onClick={onClose} className="text-gray-600 hover:text-gray-900 cursor-pointer">
-            <X size={24} />
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-2xl font-bold">장바구니</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-800 cursor-pointer transition-colors duration-200">
+            <X size={28} />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-6">
           {cartItems.length === 0 ? (
-            <p className="text-gray-500">장바구니가 비어있습니다.</p>
+            <p className="text-gray-500 text-center py-8">장바구니가 비어있습니다.</p>
           ) : (
-            <ul>
+            <ul className="space-y-4">
               {cartItems.map((item) => (
-                <li key={item.id} className="flex items-center py-2 border-b last:border-b-0">
-                  <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded mr-4" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <div className="flex items-center mt-1">
+                <li key={item.product.id} className="flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-200">
+                  <img src={item.product.image} alt={item.product.name} className="w-24 h-24 object-cover rounded-md mr-4 border border-gray-200" />
+                  <div className="flex-1 flex flex-col justify-between">
+                    <h3 className="font-semibold text-lg text-gray-800">{item.product.name}</h3>
+                    <p className="text-gray-600 text-sm">{(item.product.price).toLocaleString()}원</p>
+                    <div className="flex items-center mt-2">
                       <button
-                        onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                        className="px-2 py-1 border rounded-l-md bg-gray-100 hover:bg-gray-200"
+                        onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
+                        className="px-3 py-1 border border-gray-300 rounded-l-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200"
                       >
                         -
                       </button>
-                      <span className="px-3 py-1 border-t border-b">{item.quantity}</span>
+                      <span className="px-4 py-1 border-t border-b border-gray-300 text-gray-800 font-medium">{item.quantity}</span>
                       <button
-                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                        className="px-2 py-1 border rounded-r-md bg-gray-100 hover:bg-gray-200"
+                        onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
+                        className="px-3 py-1 border border-gray-300 rounded-r-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200"
                       >
                         +
                       </button>
                     </div>
-                    <p className="text-gray-800 font-bold mt-1">{(item.price * item.quantity).toLocaleString()}원</p>
                   </div>
-                  <button
-                    onClick={() => handleRemoveItem(item.id)}
-                    className="text-red-500 hover:text-red-700 text-sm"
-                  >
-                    삭제
-                  </button>
+                  <div className="flex flex-col items-end justify-between h-full ml-4">
+                    <button
+                      onClick={() => handleRemoveItem(item.product.id)}
+                      className="text-red-500 hover:text-red-700 text-sm transition-colors duration-200"
+                    >
+                      삭제
+                    </button>
+                    <p className="text-gray-900 font-bold text-lg mt-auto">{(item.product.price * item.quantity).toLocaleString()}원</p>
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </div>
-        <div className="p-4 border-t">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-lg font-semibold">총 금액:</span>
-            <span className="text-lg font-bold text-amber-600">{totalAmount.toLocaleString()}원</span>
+        <div className="p-6 border-t border-gray-200">
+          <div className="flex justify-between items-center mb-5">
+            <span className="text-xl font-semibold text-gray-800">총 금액:</span>
+            <span className="text-2xl font-bold text-amber-600">{(totalAmount).toLocaleString()}원</span>
           </div>
-          <PrimaryButton>
+          <PrimaryButton className="w-full py-3 text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
             주문하기
           </PrimaryButton>
 
