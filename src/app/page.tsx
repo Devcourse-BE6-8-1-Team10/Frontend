@@ -1,7 +1,7 @@
-import ProductPanel from "@/components/features/home/ProductPanel";
+import ProductSection from "@/components/features/home/ProductSection";
 
 export default function Home() {
   return (
-      <ProductPanel/>
+      <ProductSection/>
   )
 }
