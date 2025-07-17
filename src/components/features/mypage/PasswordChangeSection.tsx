@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Eye, EyeOff, KeyRound, X } from "lucide-react";
-import { Input } from "@/components/common/Input";
-import Button from "@/components/common/Button";
+import { Input } from "@/src/components/common/Input";
+import Button from "@/src/components/common/Button";
 
 interface Props {
   currentPassword: string;

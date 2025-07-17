@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Button from "@/components/common/Button";
+import Button from "@/src/components/common/Button";
 import { Search } from "lucide-react";
 
 const orders = [

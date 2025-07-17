@@ -2,8 +2,8 @@
 
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import {PrimaryButton} from "@/components/common/PrimaryButton";
-import {CartItem, Product} from "@/components/features/home/types";
+import {PrimaryButton} from "@/src/components/common/PrimaryButton";
+import {CartItem, Product} from "@/src/components/features/home/types";
 
 interface CartSidebarProps {
   isOpen: boolean;

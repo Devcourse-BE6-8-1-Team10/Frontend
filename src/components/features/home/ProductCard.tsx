@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Button from "@/components/common/Button";
-import {Product} from "@/components/features/home/types";
+import Button from "@/src/components/common/Button";
+import { Product } from "./types";
 
 interface ProductCardProps {
     product: Product;

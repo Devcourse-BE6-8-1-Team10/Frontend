@@ -10,9 +10,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Button from "@/components/common/Button";
-import CartSidebar from "@/components/features/home/CartSidebar";
-import { useCart } from "@/components/features/home/context/CartContext";
+import Button from "@/src/components/common/Button";
+import CartSidebar from "@/src/components/features/home/CartSidebar";
+import { useCart } from "@/src/components/features/home/context/CartContext";
 
 const Header = () => {
   const [isLogin, setLogin] = useState(false);

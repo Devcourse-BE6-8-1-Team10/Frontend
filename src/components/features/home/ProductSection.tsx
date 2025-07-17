@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Category from "./Category";
 import ProductList from "./ProductList";
-import { useCart } from "@/components/features/home/context/CartContext";
+import { useCart } from "@/src/components/features/home/context/CartContext";
 import { PRODUCTS } from "./data/products";
 
 const ProductSection = () => {
