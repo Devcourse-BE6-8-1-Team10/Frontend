@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Button from "@/components/common/Button";
 
 const CATEGORIES = ["전체", "커피", "디저트", "음료", "베이커리"];
