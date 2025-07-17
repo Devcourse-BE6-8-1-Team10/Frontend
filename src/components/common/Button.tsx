@@ -33,7 +33,7 @@ const Button = ({
         flex 
         items-center
         justify-center       
-        cursor-pointer
+        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
         px-4 py-2 
         rounded 
         transition 
@@ -41,11 +41,10 @@ const Button = ({
         ${bgClass}
         ${hoverClass}
         ${fontClass}
-        ${disabled ? "opacity-50 cursor-not-allowed" : ""}
         ${className || ""}
       `}
       onClick={onClick}
-      disabled={disabled} // disabled prop을 button 엘리먼트에 전달
+      disabled={disabled}
     >
       {Icon && <Icon className="w-5 h-5 mr-2" />}
       <span className="font-medium">{text}</span>

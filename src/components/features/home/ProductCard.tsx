@@ -29,16 +29,13 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
     const handleAddToCart = () => {
         if (isSoldOut) return; // 품절 시 장바구니 담기 방지
 
-        if (quantity === 0) {
-            addToCart(product, 1);
-        } else {
-            addToCart(product, quantity);
-            setQuantity(0);
-        }
+        const quantityToAdd = quantity === 0 ? 1 : quantity;
+        addToCart(product, quantityToAdd);
+        setQuantity(0); // Reset quantity after adding to cart
     };
 
     return (
-        <div className="group relative flex h-full w-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg">
+        <div className={`group relative flex h-full w-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg`}>
             <div className="aspect-w-3 aspect-h-4 overflow-hidden rounded-t-lg bg-gray-200 relative">
                 <img 
                     src={product.image} 
@@ -51,11 +48,16 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
                     </div>
                 )}
             </div>
-            <div className="flex flex-1 flex-col space-y-2 p-4">
-                <h3 className={`text-base font-semibold ${isSoldOut ? 'text-gray-500' : 'text-gray-900'}`}>{product.name}</h3>
-                <p className={`text-sm ${isSoldOut ? 'text-gray-400' : 'text-gray-500'}`}>{product.description}</p>
-                <p className={`text-sm ${isSoldOut ? 'text-gray-400' : 'text-gray-500'}`}>₩{product.price.toLocaleString()}</p>
-                <div className="flex flex-1 flex-col justify-end pt-4">
+            <div className="flex flex-1 flex-col p-4">
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className={`text-base font-semibold ${isSoldOut ? 'text-gray-500' : 'text-gray-900'}`}>{product.name}</h3>
+                    <p className={`text-xs px-2 py-1 rounded-full ${isSoldOut ? 'bg-gray-300 text-gray-600' : 'bg-amber-100 text-amber-800'}`}>{product.category}</p>
+                </div>
+                <div className="flex flex-1 flex-col">
+                    <p className={`text-sm mb-3 ${isSoldOut ? 'text-gray-400' : 'text-gray-500'} flex-grow`}>{product.description}</p>
+                    <p className={`text-xl font-bold mt-auto ${isSoldOut ? 'text-gray-500' : 'text-amber-700'}`}>{product.price.toLocaleString()}원</p>
+                </div>
+                <div className="flex flex-col justify-end pt-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center rounded-md border border-gray-300">
                             <button 
