@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
-import CartSidebar from "@/components/cart/CartSidebar";
+import CartSidebar from "@/components/features/home/components/CartSidebar";
 
 const Header = () => {
   const [isLogin, setLogin] = useState(false);
