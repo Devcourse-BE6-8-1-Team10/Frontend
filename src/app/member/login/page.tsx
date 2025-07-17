@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { LoginModal } from "@/components/features/modals/LoginModal";
+import {LoginModal} from "@/src/components/features/modals/LoginModal";
 
 export default function LoginPage() {
   const router = useRouter();

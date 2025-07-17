@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import MypageTabs from "@/components/features/mypage/MypageTabs";
-import UserInfoPanel from "@/components/features/mypage/UserInfoPanel";
-import AddressPanel from "@/components/features/mypage/AddressPanel";
-import OrdersPanel from "@/components/features/mypage/OrdersPanel";
-import SettingsPanel from "@/components/features/mypage/SettingsPanel";
+import MypageTabs from "@/src/components/features/mypage/MypageTabs";
+import UserInfoPanel from "@/src/components/features/mypage/UserInfoPanel";
+import AddressPanel from "@/src/components/features/mypage/AddressPanel";
+import OrdersPanel from "@/src/components/features/mypage/OrdersPanel";
+import SettingsPanel from "@/src/components/features/mypage/SettingsPanel";
 
 export default function Mypage() {
   const [activeTab, setActiveTab] = useState<

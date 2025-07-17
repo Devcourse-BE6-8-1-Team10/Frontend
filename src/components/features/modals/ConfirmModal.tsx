@@ -1,8 +1,8 @@
 "use client";
 
-import { Modal } from "@/components/common/Modal";
-import { ModalContent } from "@/components/common/ModalContent";
-import Button from "@/components/common/Button";
+import { Modal } from "@/src/components/common/Modal";
+import { ModalContent } from "@/src/components/common/ModalContent";
+import Button from "@/src/components/common/Button";
 
 interface ConfirmModalProps {
   open: boolean;

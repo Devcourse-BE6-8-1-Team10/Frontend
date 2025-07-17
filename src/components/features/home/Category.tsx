@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@/components/common/Button";
+import Button from "@/src/components/common/Button";
 
 const CATEGORIES = ["전체", "커피", "디저트", "음료", "베이커리"];
 

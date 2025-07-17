@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Button from "@/components/common/Button";
-import { Input } from "@/components/common/Input";
+import { Input } from "@/src/components/common/Input";
 import { useRouter } from "next/navigation";
-import PasswordChangeSection from "@/components/features/mypage/PasswordChangeSection";
+import PasswordChangeSection from "@/src/components/features/mypage/PasswordChangeSection";
+import Button from "@/src/components/common/Button";
 
 export default function EditProfilePage() {
   const router = useRouter();

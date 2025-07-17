@@ -1,9 +1,9 @@
 import { useRouter } from "next/navigation";
 import { LogIn } from "lucide-react";
-import { Modal } from "@/components/common/Modal";
-import { ModalContent } from "@/components/common/ModalContent";
-import { Input } from "@/components/common/Input";
-import { PrimaryButton } from "@/components/common/PrimaryButton";
+import { Modal } from "@/src/components/common/Modal";
+import { ModalContent } from "@/src/components/common/ModalContent";
+import { Input } from "@/src/components/common/Input";
+import { PrimaryButton } from "@/src/components/common/PrimaryButton";
 
 export function LoginModal({
   onClose,

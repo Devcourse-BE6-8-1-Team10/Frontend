@@ -1,4 +1,4 @@
-import Button from "@/components/common/Button";
+import Button from "@/src/components/common/Button";
 import { Settings } from "lucide-react";
 
 export default function SettingsPanel() {

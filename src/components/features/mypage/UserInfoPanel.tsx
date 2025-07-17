@@ -1,4 +1,4 @@
-import Button from "@/components/common/Button";
+import Button from "@/src/components/common/Button";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 
