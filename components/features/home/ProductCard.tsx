@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Button from "@/components/common/Button";
-import { Product } from "../ProductPanel";
+import {Product} from "@/components/features/home/types";
 
 interface ProductCardProps {
     product: Product;
@@ -23,7 +23,9 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
     };
 
     const handleAddToCart = () => {
-        if (quantity > 0) {
+        if (quantity === 0) {
+            addToCart(product, 1);
+        } else {
             addToCart(product, quantity);
             setQuantity(0); // Reset quantity after adding to cart
         }
@@ -39,7 +41,7 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
                 />
             </div>
             <div className="flex flex-1 flex-col space-y-2 p-4">
-                <h3 className="text-base font-medium text-gray-900">{product.name}</h3>
+                <h3 className="text-base font-semibold text-gray-900">{product.name}</h3>
                 <p className="text-sm text-gray-500">{product.description}</p>
                 <p className="text-sm text-gray-500">₩{product.price.toLocaleString()}</p>
                 <div className="flex flex-1 flex-col justify-end pt-4">
@@ -47,7 +49,7 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
                         <div className="flex items-center rounded-md border border-gray-300">
                             <button 
                                 onClick={handleDecrease}
-                                className="px-3 py-1 text-gray-600 transition hover:bg-gray-100 rounded-l-md"
+                                className="px-3 py-1 text-gray-600 transition hover:bg-gray-100 rounded-l-md cursor-pointer"
                             >
                                 -
                             </button>
@@ -56,7 +58,7 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
                             </span>
                             <button 
                                 onClick={handleIncrease}
-                                className="px-3 py-1 text-gray-600 transition hover:bg-gray-100 rounded-r-md"
+                                className="px-3 py-1 text-gray-600 transition hover:bg-gray-100 rounded-r-md cursor-pointer"
                             >
                                 +
                             </button>
