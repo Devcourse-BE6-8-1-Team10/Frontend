@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/common/Button";
-import CartSidebar from "@/components/features/home/components/CartSidebar";
+import CartSidebar from "@/components/features/home/CartSidebar";
 import { useCart } from "@/components/features/home/context/CartContext";
 
 const Header = () => {
@@ -19,6 +19,8 @@ const Header = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const { isCartOpen, toggleCart, cartItems, setCartItems } = useCart();
   const router = useRouter();
+
+  const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <>
@@ -56,11 +58,18 @@ const Header = () => {
                     text="마이 페이지"
                     onClick={() => router.push("/member/mypage")}
                   />
-                  <Button
-                    icon={ShoppingCart}
-                    text="장바구니"
-                    onClick={toggleCart}
-                  />
+                  <div className="relative">
+                    <Button
+                      icon={ShoppingCart}
+                      text="장바구니"
+                      onClick={toggleCart}
+                    />
+                    {totalQuantity > 0 && (
+                      <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                        {totalQuantity}
+                      </span>
+                    )}
+                  </div>
                   <Button
                     icon={LogOut}
                     text="로그아웃"

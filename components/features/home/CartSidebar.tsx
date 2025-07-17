@@ -3,13 +3,7 @@
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {PrimaryButton} from "@/components/common/PrimaryButton";
-
-import { Product } from "../ProductPanel";
-
-interface CartItem {
-  product: Product;
-  quantity: number;
-}
+import {CartItem, Product} from "@/components/features/home/types";
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -90,14 +84,14 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cartItems, s
                     <div className="flex items-center mt-2">
                       <button
                         onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
-                        className="px-3 py-1 border border-gray-300 rounded-l-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200"
+                        className="px-3 py-1 border border-gray-300 rounded-l-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200 cursor-pointer"
                       >
                         -
                       </button>
                       <span className="px-4 py-1 border-t border-b border-gray-300 text-gray-800 font-medium">{item.quantity}</span>
                       <button
                         onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
-                        className="px-3 py-1 border border-gray-300 rounded-r-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200"
+                        className="px-3 py-1 border border-gray-300 rounded-r-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200 cursor-pointer"
                       >
                         +
                       </button>
@@ -106,7 +100,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cartItems, s
                   <div className="flex flex-col items-end justify-between h-full ml-4">
                     <button
                       onClick={() => handleRemoveItem(item.product.id)}
-                      className="text-red-500 hover:text-red-700 text-sm transition-colors duration-200"
+                      className="text-red-500 hover:text-red-700 text-sm transition-colors duration-200, cursor-pointer"
                     >
                       삭제
                     </button>
