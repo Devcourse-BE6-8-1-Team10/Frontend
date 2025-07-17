@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import Button from "@/components/common/Button";
+import {PrimaryButton} from "@/components/common/PrimaryButton";
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -63,7 +63,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
     <>
       {isOpen && (
         <div
-          className="bg-gray-400/50 fixed inset-0 z-40 transition-opacity duration-300 backdrop-blur-[2px]"
+          className="bg-black/50 fixed inset-0 z-40 transition-opacity duration-300"
           onClick={onClose}
         ></div>
       )}
@@ -121,7 +121,9 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
             <span className="text-lg font-semibold">총 금액:</span>
             <span className="text-lg font-bold text-amber-600">{totalAmount.toLocaleString()}원</span>
           </div>
-          <Button text="주문하기" className="w-full bg-amber-600 text-white py-3 rounded-md hover:bg-amber-700 transition-colors justify-center"/>
+          <PrimaryButton>
+            주문하기
+          </PrimaryButton>
 
         </div>
       </div>
