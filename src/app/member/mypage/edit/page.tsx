@@ -96,10 +96,18 @@ export default function EditProfilePage() {
 
             <tr>
               <td colSpan={2} className="pt-8 pr-1">
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-3">
+                  <Button
+                    text="취소"
+                    onClick={() => router.back()}
+                    bgColor="bg-white"
+                    fontColor="text-gray-700"
+                    hoverColor="hover:bg-gray-100"
+                    className="px-6"
+                  />
                   <Button
                     text="저장"
-                    onClick={() => router.push("/member/mypage")}
+                    onClick={handleSubmit}
                     bgColor="bg-amber-600"
                     hoverColor="hover:bg-amber-500"
                     fontColor="text-white"
