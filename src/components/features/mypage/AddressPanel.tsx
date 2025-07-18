@@ -4,18 +4,13 @@ import { useState } from "react";
 import Button from "@/src/components/common/Button";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
-
-interface Address {
-  id: number;
-  address: string;
-  isDefault: boolean;
-}
+import { useUserAddresses } from "@/src/hooks/useUserAddresses";
 
 export default function AddressPanel() {
-  const [addresses, setAddresses] = useState<Address[]>([
-    { id: 1, address: "서울시 강남구 테헤란로 123", isDefault: true },
-    { id: 2, address: "경기도 성남시 분당구 수내동 456", isDefault: false },
-  ]);
+  // ───────────────────────────────
+  // 상태 관리
+  const { addresses, add, edit, remove, setDefault } = useUserAddresses();
+
   const [editingId, setEditingId] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [isAdding, setIsAdding] = useState(false);
@@ -26,7 +21,7 @@ export default function AddressPanel() {
   });
 
   // ───────────────────────────────
-  // 상태 제어 함수
+  // 제어 함수
   const resetForm = () => {
     setInputValue("");
     setEditingId(null);
@@ -41,46 +36,30 @@ export default function AddressPanel() {
   // 핸들러 함수
   const handleAdd = () => {
     if (!inputValue.trim()) return;
-    setAddresses((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        address: inputValue,
-        isDefault: prev.length === 0,
-      },
-    ]);
+    add(inputValue.trim());
     resetForm();
   };
 
   const handleEdit = (id: number) => {
     if (!inputValue.trim()) return;
-    setAddresses((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, address: inputValue } : a))
-    );
+    edit(id, inputValue.trim());
     resetForm();
   };
 
   const handleDelete = (id: number) => {
     openConfirm("이 주소를 삭제하시겠습니까?", () => {
-      setAddresses((prev) => {
-        const updated = prev.filter((a) => a.id !== id);
-        const hasDefault = updated.some((a) => a.isDefault);
-        return hasDefault
-          ? updated
-          : updated.map((a, i) => (i === 0 ? { ...a, isDefault: true } : a));
-      });
+      remove(id);
     });
   };
 
   const handleSetDefault = (id: number) => {
     openConfirm("기본 배송지를 변경하시겠습니까?", () => {
-      setAddresses((prev) =>
-        prev.map((a) => ({ ...a, isDefault: a.id === id }))
-      );
+      setDefault(id);
     });
   };
 
   // ───────────────────────────────
+  // 렌더링
   return (
     <section className="bg-white shadow p-6 rounded">
       {/* 헤더 */}
@@ -118,7 +97,7 @@ export default function AddressPanel() {
               </div>
             </li>
           ) : (
-            // 주소 목록
+            // 주소 아이템
             <li key={addr.id} className="border border-gray-200 rounded p-4">
               <div className="flex justify-between items-center">
                 <div>

@@ -4,9 +4,11 @@ import { useEffect } from "react";
 export function Modal({
   children,
   onClose,
+  size = "base", // base | large
 }: {
   children: React.ReactNode;
   onClose: () => void;
+  size?: "base" | "large";
 }) {
   useEffect(() => {
     // ESC 키로 모달 닫기
@@ -23,6 +25,7 @@ export function Modal({
     };
   }, [onClose]);
 
+  const width = size === "large" ? "max-w-7xl w-full" : "w-[480px]";
   return (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
@@ -32,7 +35,7 @@ export function Modal({
       {/* 바깥 클릭시 닫기 */}
       <div className="absolute inset-0" onClick={onClose} />
       {/* 모달 내용 */}
-      <div className="relative">{children}</div>
+      <div className={`relative ${width}`}>{children}</div>
     </div>
   );
 }
