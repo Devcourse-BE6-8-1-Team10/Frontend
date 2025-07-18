@@ -4,6 +4,8 @@ import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { PrimaryButton } from "@/src/components/common/PrimaryButton";
 import { CartItem, Product } from "@/src/components/features/home/types";
+import { useAddressContext } from "@/src/components/features/home/context/AddressContext";
+import AddressSelectModal from "../modals/AddressSelectModal";
 
 // CartSidebar: 장바구니 사이드바 UI 컴포넌트
 // - 장바구니 열기/닫기, 장바구니 아이템 목록, 수량/삭제/결제 등 기능 제공
@@ -22,6 +24,13 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   setCartItems,
 }) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  const { addresses, add } = useAddressContext();
+  const [selectedAddress, setSelectedAddress] = useState<string>("");
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
 
   // handleRemoveItem: 장바구니에서 아이템 삭제
   const handleRemoveItem = (id: number) => {
@@ -68,6 +77,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose]);
+
+  if (!isClient) return null;
 
   return (
     <>
@@ -198,6 +209,46 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         </div>
         {/* 하단: 총 금액 및 주문 버튼 */}
         <div className="p-6 border-t border-gray-200">
+          {/* 배송지 입력/선택 UI */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-2">배송지</h3>
+            {!selectedAddress && !isEditingAddress ? (
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-base text-gray-500 flex-1">
+                  배송지가 지정되어 있지 않습니다.
+                </span>
+                <button
+                  className="px-3 py-1 text-sm bg-amber-100 text-amber-700 rounded hover:bg-amber-200 transition"
+                  onClick={() => setIsEditingAddress(true)}
+                >
+                  배송지 지정
+                </button>
+              </div>
+            ) : selectedAddress && !isEditingAddress ? (
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-base text-gray-800 flex-1">
+                  {selectedAddress}
+                </span>
+                <button
+                  className="px-3 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300 transition"
+                  onClick={() => setIsEditingAddress(true)}
+                >
+                  배송지 변경
+                </button>
+              </div>
+            ) : null}
+
+            {/* 배송지 변경 모달 */}
+            <AddressSelectModal
+              open={isEditingAddress}
+              onClose={() => setIsEditingAddress(false)}
+              currentAddress={selectedAddress}
+              onEditSave={(edited: string) => {
+                setSelectedAddress(edited);
+              }}
+              onSelect={(address) => setSelectedAddress(address)}
+            />
+          </div>
           <div className="flex justify-between items-center mb-5">
             <span className="text-xl font-semibold text-gray-800">
               총 금액:
@@ -207,7 +258,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
             </span>
           </div>
           {/* 주문하기 버튼 */}
-          <PrimaryButton className="w-full py-3 text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+          <PrimaryButton
+            className="w-full py-3 text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+            //onClick={}
+            disabled={cartItems.length === 0 || !selectedAddress}
+          >
             주문하기
           </PrimaryButton>
         </div>

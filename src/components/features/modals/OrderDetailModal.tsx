@@ -4,7 +4,7 @@ import { Modal } from "@/src/components/common/Modal";
 import { ModalContent } from "@/src/components/common/ModalContent";
 import Button from "@/src/components/common/Button";
 import { useState } from "react";
-import OrderAddressSelectModal from "@/src/components/features/modals/OrderAddressSelectModal";
+import AddressSelectModal from "@/src/components/features/modals/AddressSelectModal";
 import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
 import {
   useOrders,
@@ -45,22 +45,6 @@ export default function OrderDetailModal({
           onClose();
         } catch (error) {
           console.error("주문 취소 실패:", error);
-        }
-      },
-    });
-  };
-
-  const handleAddressChange = (newAddress: string) => {
-    setConfirmModal({
-      open: true,
-      message: "배송지를 변경하시겠습니까?",
-      onConfirm: async () => {
-        try {
-          await updateOrderAddress(order.id, newAddress);
-          setSelectedAddress(newAddress);
-          setConfirmModal({ ...confirmModal, open: false });
-        } catch (error) {
-          console.error("배송지 변경 실패:", error);
         }
       },
     });
@@ -142,12 +126,20 @@ export default function OrderDetailModal({
                   className="w-full mt-2 text-lg"
                 />
 
-                <OrderAddressSelectModal
+                {/* 배송지 변경 모달 */}
+                <AddressSelectModal
                   open={isAddressModalOpen}
                   onClose={() => setIsAddressModalOpen(false)}
-                  orderId={order.id}
                   currentAddress={selectedAddress}
-                  onAddressChange={setSelectedAddress}
+                  onEditSave={async (edited: string) => {
+                    await updateOrderAddress(order.id, edited);
+                    setSelectedAddress(edited);
+                  }}
+                  onSelect={async (address: string) => {
+                    await updateOrderAddress(order.id, address);
+                    setSelectedAddress(address);
+                    setIsAddressModalOpen(false);
+                  }}
                 />
               </div>
 
