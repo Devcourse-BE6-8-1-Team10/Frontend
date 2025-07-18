@@ -7,10 +7,14 @@ import PencilIcon from "@/src/components/common/PencilIcon";
 import ToggleSwitch from "@/src/components/common/ToggleSwitch";
 import {PRODUCTS} from "@/src/components/features/home/data/products";
 import {Product} from "@/src/components/features/home/types";
+import AddEditMenuModal from "@/src/components/features/admin/AddEditMenuModal";
+
 const MenuManagement: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
   const [changedProducts, setChangedProducts] = useState<Set<number>>(new Set());
+  const [showAddEditModal, setShowAddEditModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
 
   useEffect(() => {
     setProducts(PRODUCTS);
@@ -34,7 +38,11 @@ const MenuManagement: React.FC = () => {
   };
 
   const handleEditProduct = (id: number) => {
-    alert(`제품 ID ${id} 수정`);
+    const productToEdit = products.find(p => p.id === id);
+    if (productToEdit) {
+      setEditingProduct(productToEdit);
+      setShowAddEditModal(true);
+    }
   };
 
   const handleSave = () => {
@@ -47,8 +55,25 @@ const MenuManagement: React.FC = () => {
   };
 
   const handleAddMenu = () => {
-    alert("메뉴 추가 기능 구현 예정");
-    // 여기에 메뉴 추가 로직을 구현하세요.
+    setEditingProduct(undefined);
+    setShowAddEditModal(true);
+  };
+
+  const handleSaveProduct = (product: Product) => {
+    setProducts((prevProducts) => {
+      const existingProductIndex = prevProducts.findIndex(p => p.id === product.id);
+      if (existingProductIndex > -1) {
+        // Update existing product
+        return prevProducts.map((p, index) =>
+          index === existingProductIndex ? product : p
+        );
+      } else {
+        // Add new product
+        return [...prevProducts, product];
+      }
+    });
+    setChangedProducts((prev) => new Set(prev.add(product.id)));
+    setShowAddEditModal(false);
   };
 
   const hasChanges = changedProducts.size > 0;
@@ -85,7 +110,7 @@ const MenuManagement: React.FC = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이미지</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">가격</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">카테고리</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-25">카테고리</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">설명</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">품절 상태</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">액션</th>
@@ -106,18 +131,18 @@ const MenuManagement: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.price.toLocaleString()}원</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.category}</td>
                 <td className="px-6 py-4 text-sm text-gray-500 overflow-hidden text-ellipsis">{product.description}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm items-center">
                   <ToggleSwitch
                     isOn={!product.isSoldOut}
                     handleToggle={() => handleToggleSoldOut(product.id)}
                     onColor="bg-green-500"
                     offColor="bg-red-500"
                   />
-                  <span className="ml-2 text-gray-700 font-medium">
+                  <span className="ml-2 text-gray-700 font-medium align-middle">
                     {product.isSoldOut ? "품절" : "판매중"}
                   </span>
                 </td>
-                <td className="px-6 py-7 flex justify-between items-center">
+                <td className="px-6 py-4 flex justify-between items-center">
                   <Button
                     onClick={() => handleEditProduct(product.id)}
                     icon={PencilIcon}
@@ -138,6 +163,15 @@ const MenuManagement: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {showAddEditModal && (
+        <AddEditMenuModal
+          isOpen={showAddEditModal}
+          onClose={() => setShowAddEditModal(false)}
+          onSave={handleSaveProduct}
+          editingProduct={editingProduct}
+        />
+      )}
     </div>
   );
 };
