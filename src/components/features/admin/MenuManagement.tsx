@@ -56,9 +56,6 @@ const MenuManagement: React.FC = () => {
   };
 
   const handleSave = () => {
-    // const updatedProducts = products.filter(product => !originalProducts.some(op => op.id === product.id && op.isSoldOut === product.isSoldOut));
-    // const deletedProductIds = originalProducts.filter(op => !products.some(p => p.id === op.id)).map(p => p.id);
-
     setOriginalProducts(products);
     setChangedProducts(new Set());
     alert("변경사항이 저장되었습니다.");
@@ -73,12 +70,10 @@ const MenuManagement: React.FC = () => {
     setProducts((prevProducts) => {
       const existingProductIndex = prevProducts.findIndex(p => p.id === product.id);
       if (existingProductIndex > -1) {
-        // Update existing product
         return prevProducts.map((p, index) =>
           index === existingProductIndex ? product : p
         );
       } else {
-        // Add new product
         return [...prevProducts, product];
       }
     });
@@ -89,20 +84,23 @@ const MenuManagement: React.FC = () => {
   const hasChanges = changedProducts.size > 0;
 
   return (
-    <div className="container mx-auto p-6 min-h-screen">
-      <h1 className="text-3xl font-extrabold text-gray-800 mb-8 text-center">메뉴 관리</h1>
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8 min-h-screen">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-800">메뉴 관리</h1>
+        <p className="text-gray-500 mt-2">메뉴를 추가, 수정, 삭제하고 품절 상태를 관리하세요.</p>
+      </div>
 
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex space-x-4">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
           <input
             type="text"
             placeholder="메뉴 검색..."
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <select
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
@@ -111,19 +109,19 @@ const MenuManagement: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex">
+        <div className="flex gap-4 w-full sm:w-auto">
           <Button
             onClick={handleSave}
             disabled={!hasChanges}
-            className="px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition duration-300 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto"
             text="변경사항 저장"
             fontColor="text-white"
-            bgColor="bg-indigo-600"
-            hoverColor="hover:bg-indigo-700"
+            bgColor="bg-blue-600"
+            hoverColor="hover:bg-blue-700"
           />
           <Button
             onClick={handleAddMenu}
-            className="ml-4 px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition duration-300 ease-in-out"
+            className="w-full sm:w-auto"
             text="메뉴 추가"
             fontColor="text-white"
             bgColor="bg-green-500"
@@ -132,61 +130,63 @@ const MenuManagement: React.FC = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto bg-white shadow-lg rounded-lg">
+      <div className="overflow-x-auto bg-white shadow-md rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이미지</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">가격</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-25">카테고리</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">설명</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">품절 상태</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">액션</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">메뉴</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">가격</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">카테고리</th>
+              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">상태</th>
+              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">관리</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredProducts.map((product) => (
-              <tr key={product.id} className={`hover:bg-gray-50 ${changedProducts.has(product.id) ? "bg-yellow-50" : ""}`}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.id}</td>
+              <tr key={product.id} className={`transition-colors duration-200 ${changedProducts.has(product.id) ? "bg-yellow-50" : "hover:bg-gray-50"}`}>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-16 h-16 object-cover rounded-md shadow-sm"
-                  />
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-12 w-12">
+                      <img className="h-12 w-12 rounded-md object-cover" src={product.image} alt={product.name} />
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                      <div className="text-sm text-gray-500">{product.description}</div>
+                    </div>
+                  </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.price.toLocaleString()}원</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.category}</td>
-                <td className="px-6 py-4 text-sm text-gray-500 overflow-hidden text-ellipsis">{product.description}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm items-center">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{product.price.toLocaleString()}원</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{product.category}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">
                   <ToggleSwitch
                     isOn={!product.isSoldOut}
                     handleToggle={() => handleToggleSoldOut(product.id)}
                     onColor="bg-green-500"
                     offColor="bg-red-500"
                   />
-                  <span className="ml-2 text-gray-700 font-medium align-middle">
+                  <span className={`ml-2 text-sm font-medium ${product.isSoldOut ? 'text-red-600' : 'text-green-600'}`}>
                     {product.isSoldOut ? "품절" : "판매중"}
                   </span>
                 </td>
-                <td className="px-6 py-4 flex justify-between items-center">
-                  <Button
-                    onClick={() => handleEditProduct(product.id)}
-                    icon={PencilIcon}
-                    fontColor="text-white"
-                    bgColor="bg-blue-500"
-                    hoverColor="hover:bg-blue-600"
-                  />
-                  <Button
-                    onClick={() => handleDeleteProduct(product.id)}
-                    icon={TrashIcon}
-                    fontColor="text-white"
-                    bgColor="bg-red-500"
-                    hoverColor="hover:bg-red-600"
-                  />
+                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                  <div className="flex justify-center items-center gap-4">
+                    <Button
+                      onClick={() => handleEditProduct(product.id)}
+                      icon={PencilIcon}
+                      fontColor="text-white"
+                      bgColor="bg-gray-400"
+                      hoverColor="hover:bg-gray-500"
+                      className="p-2 rounded-full"
+                    />
+                    <Button
+                      onClick={() => handleDeleteProduct(product.id)}
+                      icon={TrashIcon}
+                      fontColor="text-white"
+                      bgColor="bg-red-500"
+                      hoverColor="hover:bg-red-600"
+                      className="p-2 rounded-full"
+                    />
+                  </div>
                 </td>
               </tr>
             ))}
