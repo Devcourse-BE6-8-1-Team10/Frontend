@@ -5,6 +5,7 @@ import Header from "@/src/components/layout/Header";
 import Footer from "@/src/components/layout/Footer";
 import { CartProvider } from "@/src/components/features/home/context/CartContext";
 import { AddressProvider } from "@/src/hooks/useUserAddresses";
+import { UserProvider } from "@/src/components/features/home/context/UserContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,15 +30,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex flex-col min-h-screen">
-        <CartProvider>
-          <AddressProvider>
-            <Header />
-            <main className="flex-1 w-full pb-14">
-              <div className="max-w-7xl mx-auto px-4">{children}</div>
-            </main>
-            <Footer />
-          </AddressProvider>
-        </CartProvider>
+        <UserProvider>
+          <CartProvider>
+            <AddressProvider>
+              <Header />
+              <main className="flex-1 w-full pb-14">
+                <div className="max-w-7xl mx-auto px-4">{children}</div>
+              </main>
+              <Footer />
+            </AddressProvider>
+          </CartProvider>
+        </UserProvider>
       </body>
     </html>
   );
