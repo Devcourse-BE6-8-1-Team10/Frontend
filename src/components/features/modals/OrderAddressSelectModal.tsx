@@ -7,6 +7,8 @@ import Button from "@/src/components/common/Button";
 import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
 import { useAddressContext } from "@/src/components/features/home/context/AddressContext";
 import { useOrders } from "@/src/components/features/home/context/OrderContext";
+import AddressList from "@/src/components/common/AddressList";
+import AddressInput from "@/src/components/common/AddressInput";
 
 interface OrderAddressSelectModalProps {
   open: boolean;
@@ -70,8 +72,20 @@ export default function OrderAddressSelectModal({
   const handleRegisterNew = () => {
     setConfirm({
       open: true,
-      message: "배송지가 변경되었습니다. 주소를 등록하시겠습니까?",
-      onConfirm: () => {
+      message: "주소가 등록되었습니다. 배송지를 변경하시겠습니까?",
+      onConfirm: async () => {
+        if (!addresses.some((a) => a.address === newAddress)) {
+          add(newAddress);
+        }
+        // 배송지 변경
+        await updateOrderAddress(orderId, newAddress);
+        setShowNewInput(false);
+        setNewAddress("");
+        setConfirm({ ...confirm, open: false });
+        if (onAddressChange) onAddressChange(newAddress);
+        onClose();
+      },
+      onCancel: () => {
         if (!addresses.some((a) => a.address === newAddress)) {
           add(newAddress);
         }
@@ -79,7 +93,6 @@ export default function OrderAddressSelectModal({
         setNewAddress("");
         setConfirm({ ...confirm, open: false });
       },
-      onCancel: () => setConfirm({ ...confirm, open: false }),
     });
   };
 
@@ -141,40 +154,20 @@ export default function OrderAddressSelectModal({
           </div>
         </div>
         {/* 주소 목록 */}
-        <ul className="space-y-2 max-h-60 overflow-y-auto mb-4">
-          {addresses.map((addr) => (
-            <li
-              key={addr.id}
-              className={`border p-4 rounded cursor-pointer hover:bg-gray-50 ${
-                currentAddress === addr.address
-                  ? "border-amber-600 bg-amber-50"
-                  : "border-gray-300"
-              }`}
-              onClick={() => handleSelect(addr.address)}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-lg">{addr.address}</span>
-                {addr.isDefault && (
-                  <span className="ml-2 px-2 py-1 text-xs bg-amber-100 text-amber-700 rounded">
-                    기본
-                  </span>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
+        <AddressList
+          addresses={addresses}
+          current={currentAddress}
+          onSelect={handleSelect}
+        />
         {/* 새 주소 입력 */}
         {showNewInput ? (
-          <div className="flex gap-2 mb-4">
-            <input
-              className="flex-1 p-3 border rounded"
-              value={newAddress}
-              onChange={(e) => setNewAddress(e.target.value)}
-              placeholder="새 주소를 입력하세요"
-            />
-            <Button text="등록" onClick={handleRegisterNew} />
-            <Button text="취소" onClick={() => setShowNewInput(false)} />
-          </div>
+          <AddressInput
+            value={newAddress}
+            onChange={setNewAddress}
+            onSubmit={handleRegisterNew}
+            onCancel={() => setShowNewInput(false)}
+            placeholder="새 주소를 입력하세요"
+          />
         ) : (
           <Button
             text="새 주소 입력"
