@@ -10,6 +10,11 @@ export const ORDERS: Order[] = [
     items: [
       { product: PRODUCTS[0], quantity: 2, price: PRODUCTS[0].price },
       { product: PRODUCTS[2], quantity: 1, price: PRODUCTS[2].price },
+      { product: PRODUCTS[0], quantity: 2, price: PRODUCTS[0].price },
+      { product: PRODUCTS[0], quantity: 2, price: PRODUCTS[0].price },
+      { product: PRODUCTS[0], quantity: 2, price: PRODUCTS[0].price },
+      { product: PRODUCTS[0], quantity: 2, price: PRODUCTS[0].price },
+      { product: PRODUCTS[0], quantity: 2, price: PRODUCTS[0].price },
     ],
     totalPrice: PRODUCTS[0].price * 2 + PRODUCTS[2].price * 1,
     status: "주문 접수",
@@ -21,6 +26,7 @@ export const ORDERS: Order[] = [
     phoneNumber: "010-9876-5432",
     items: [
       { product: PRODUCTS[1], quantity: 1, price: PRODUCTS[1].price },
+      { product: PRODUCTS[3], quantity: 3, price: PRODUCTS[3].price },
       { product: PRODUCTS[3], quantity: 3, price: PRODUCTS[3].price },
     ],
     totalPrice: PRODUCTS[1].price * 1 + PRODUCTS[3].price * 3,
