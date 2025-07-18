@@ -4,12 +4,12 @@ import { useState } from "react";
 import Button from "@/src/components/common/Button";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
-import { useUserAddresses } from "@/src/hooks/useUserAddresses";
+import { useAddressContext } from "@/src/components/features/home/context/AddressContext";
 
 export default function AddressPanel() {
   // ───────────────────────────────
   // 상태 관리
-  const { addresses, add, edit, remove, setDefault } = useUserAddresses();
+  const { addresses, add, edit, remove, setDefault } = useAddressContext();
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState("");
@@ -60,6 +60,11 @@ export default function AddressPanel() {
 
   // ───────────────────────────────
   // 렌더링
+  // 기본 배송지가 항상 맨 위로 오도록 정렬
+  const sortedAddresses = [...addresses].sort(
+    (a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0)
+  );
+
   return (
     <section className="bg-white shadow p-6 rounded">
       {/* 헤더 */}
@@ -78,7 +83,7 @@ export default function AddressPanel() {
 
       {/* 주소 목록 */}
       <ul className="space-y-4">
-        {addresses.map((addr) =>
+        {sortedAddresses.map((addr) =>
           editingId === addr.id ? (
             // 수정 폼
             <li
