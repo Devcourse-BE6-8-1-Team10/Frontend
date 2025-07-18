@@ -3,13 +3,16 @@
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { PrimaryButton } from "@/src/components/common/PrimaryButton";
-import { CartItem, Product } from "@/src/components/features/home/types";
+import { CartItem } from "@/src/components/features/home/types";
 import { useAddressContext } from "@/src/components/features/home/context/AddressContext";
-import AddressSelectModal from "../modals/AddressSelectModal";
+import { useCart } from "@/src/components/features/home/context/CartContext";
+import { useOrders } from "@/src/components/features/home/context/OrderContext";
+import { useUser } from "@/src/components/features/home/context/UserContext";
+import AddressSelectModal from "@/src/components/features/modals/AddressSelectModal";
+import CompleteModal from "@/src/components/features/modals/CompleteModal";
 
 // CartSidebar: 장바구니 사이드바 UI 컴포넌트
 // - 장바구니 열기/닫기, 장바구니 아이템 목록, 수량/삭제/결제 등 기능 제공
-// - props: isOpen(열림 여부), onClose(닫기 핸들러), cartItems(장바구니 목록), setCartItems(장바구니 상태 변경)
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -28,9 +31,15 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   useEffect(() => {
     setIsClient(true);
   }, []);
-  const { addresses, add } = useAddressContext();
   const [selectedAddress, setSelectedAddress] = useState<string>("");
   const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const { createOrder } = useOrders();
+  const { user } = useUser();
+  const { clearCart } = useCart();
+  const [ordering, setOrdering] = useState(false);
+  const [orderComplete, setOrderComplete] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // handleRemoveItem: 장바구니에서 아이템 삭제
   const handleRemoveItem = (id: number) => {
@@ -77,6 +86,33 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose]);
+
+  // handleOrder: 주문 처리 핸들러
+  const handleOrder = async () => {
+    if (!selectedAddress || cartItems.length === 0 || !user?.email) return;
+    setOrdering(true);
+    try {
+      await createOrder({
+        customerEmail: user.email,
+        customerAddress: selectedAddress,
+        orderItems: cartItems.map((item) => ({
+          productId: item.product.id,
+          productName: item.product.name,
+          productPrice: item.product.price,
+          productImage: item.product.image,
+          count: item.quantity,
+        })),
+      });
+      clearCart();
+      setSelectedAddress("");
+      setOrderComplete(true);
+    } catch (e) {
+      setErrorMessage("주문 처리 중 오류가 발생했습니다.");
+      setErrorModalOpen(true);
+    } finally {
+      setOrdering(false);
+    }
+  };
 
   if (!isClient) return null;
 
@@ -259,14 +295,26 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           </div>
           {/* 주문하기 버튼 */}
           <PrimaryButton
-            className="w-full py-3 text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-            //onClick={}
-            disabled={cartItems.length === 0 || !selectedAddress}
+            className="w-full py-3 text-lg font-semibold rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
+            onClick={handleOrder}
+            disabled={ordering || cartItems.length === 0 || !selectedAddress}
           >
-            주문하기
+            {ordering ? "주문 처리 중..." : "주문하기"}
           </PrimaryButton>
         </div>
       </div>
+      {/* 주문 완료 모달 */}
+      <CompleteModal
+        open={orderComplete}
+        onClose={() => setOrderComplete(false)}
+        message="주문이 완료되었습니다."
+      />
+      {/* 에러 모달 */}
+      <CompleteModal
+        open={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        message={errorMessage}
+      />
     </>
   );
 };
