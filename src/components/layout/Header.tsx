@@ -62,7 +62,7 @@ const Header = () => {
                 <div className="flex items-center space-x-4">
                   {/* 관리자 계정이면 관리자 페이지 버튼 */}
                   {user?.isAdmin && (
-                    <Button icon={Shield} text="관리자 페이지" />
+                    <Button icon={Shield} text="관리자 페이지" onClick={() => router.push("/admin")} />
                   )}
 
                   {/* 마이페이지 이동 */}

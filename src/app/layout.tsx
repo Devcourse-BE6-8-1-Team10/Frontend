@@ -34,9 +34,9 @@ export default function RootLayout({
           <CartProvider>
             <AddressProvider>
               <Header />
-              <main className="flex-1 w-full pb-14">
-                <div className="max-w-7xl mx-auto px-4">{children}</div>
-              </main>
+                <main className="flex-1 w-full pb-14">
+                  <div className="max-w-7xl mx-auto px-4">{children}</div>
+                </main>
               <Footer />
             </AddressProvider>
           </CartProvider>

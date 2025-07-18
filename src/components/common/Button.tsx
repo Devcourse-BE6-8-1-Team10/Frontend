@@ -4,7 +4,7 @@ import { ElementType } from "react";
 
 interface ButtonProps {
   icon?: ElementType;
-  text: string;
+  text?: string;
   bgColor?: string;
   hoverColor?: string;
   fontColor?: string;
@@ -46,8 +46,8 @@ const Button = ({
       onClick={onClick}
       disabled={disabled}
     >
-      {Icon && <Icon className="w-5 h-5 mr-2" />}
-      <span className="font-medium">{text}</span>
+      {Icon && <Icon className={`w-5 h-5 ${text ? "mr-2" : ""}`} />}
+      {text && <span className="font-medium">{text}</span>}
     </button>
   );
 };
