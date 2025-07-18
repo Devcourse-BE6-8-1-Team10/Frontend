@@ -97,9 +97,6 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         customerAddress: selectedAddress,
         orderItems: cartItems.map((item) => ({
           productId: item.product.id,
-          productName: item.product.name,
-          productPrice: item.product.price,
-          productImage: item.product.image,
           count: item.quantity,
         })),
       });
