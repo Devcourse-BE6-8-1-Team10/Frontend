@@ -47,7 +47,8 @@ export default function OrderAddressSelectModal({
             </button>
           </div>
 
-          <ul className="space-y-4">
+          {/* 주소 목록 */}
+          <ul className="space-y-4 max-h-60 overflow-y-auto">
             {addresses.map((addr) => (
               <li
                 key={addr.id}
