@@ -5,7 +5,7 @@ import { ModalContent } from "@/src/components/common/ModalContent";
 import Button from "@/src/components/common/Button";
 import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
 import { useState } from "react";
-import { useUserAddresses } from "@/src/hooks/useUserAddresses";
+import { useAddressContext } from "@/src/components/features/home/context/AddressContext";
 import { X } from "lucide-react";
 
 interface Props {
@@ -21,7 +21,7 @@ export default function OrderAddressSelectModal({
   onSelect,
   currentAddress,
 }: Props) {
-  const { addresses, add } = useUserAddresses();
+  const { addresses, add } = useAddressContext();
   const [inputValue, setInputValue] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -47,7 +47,8 @@ export default function OrderAddressSelectModal({
             </button>
           </div>
 
-          <ul className="space-y-4">
+          {/* 주소 목록 */}
+          <ul className="space-y-4 max-h-60 overflow-y-auto">
             {addresses.map((addr) => (
               <li
                 key={addr.id}

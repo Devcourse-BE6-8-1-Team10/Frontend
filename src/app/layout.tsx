@@ -4,7 +4,7 @@ import "./globals.css";
 import Header from "@/src/components/layout/Header";
 import Footer from "@/src/components/layout/Footer";
 import { CartProvider } from "@/src/components/features/home/context/CartContext";
-import { AddressProvider } from "@/src/hooks/useUserAddresses";
+import { AddressProvider } from "@/src/components/features/home/context/AddressContext";
 import { UserProvider } from "@/src/components/features/home/context/UserContext";
 
 const geistSans = Geist({
