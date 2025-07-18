@@ -8,6 +8,7 @@ export const PRODUCTS: Product[] = [
         image: "https://www.biz-con.co.kr/upload/images/202501/400_20250122164028679_2.jpg",
         description: "진한 에스프레소에 뜨거운 물을 넣은 클래식 커피",
         category: "커피",
+        isSoldOut: true,
     },
     {
         id: 2,
@@ -16,6 +17,7 @@ export const PRODUCTS: Product[] = [
         image: "https://dh.aks.ac.kr/Edu/wiki/images/thumb/8/85/1893535467_J78QnDCd_C4ABC6E4B6F3B6BC.jpg/300px-1893535467_J78QnDCd_C4ABC6E4B6F3B6BC.jpg",
         description: "부드러운 우유와 에스프레소가 조화로운 커피",
         category: "커피",
+        isSoldOut: false,
     },
     {
         id: 3,
@@ -24,6 +26,7 @@ export const PRODUCTS: Product[] = [
         image: "https://www.jewon1986.com:45131/data/file/aid_1/983012508_Ebm5lwLu_7c182df111d37985163cef51f41b109fed0616d8.png",
         description: "진하고 고소한 맛이 일품인 뉴욕 스타일 치즈케이크",
         category: "디저트",
+        isSoldOut: true,
     },
     {
         id: 4,
@@ -32,6 +35,7 @@ export const PRODUCTS: Product[] = [
         image: "https://m.tlj.co.kr/data/product/2025-5-21_event(2).jpg",
         description: "달콤한 초콜릿 칩이 듬뿍 박힌 바삭한 쿠키",
         category: "디저트",
+        isSoldOut: false,
     },
     {
         id: 5,
@@ -40,6 +44,7 @@ export const PRODUCTS: Product[] = [
         image: "https://img.danawa.com/prod_img/500000/758/029/img/25029758_1.jpg?_v=20240206102448",
         description: "바닐라 시럽과 우유가 어우러진 부드러운 라떼",
         category: "커피",
+        isSoldOut: false,
     },
     {
         id: 6,
@@ -48,5 +53,6 @@ export const PRODUCTS: Product[] = [
         image: "https://img.danawa.com/prod_img/500000/786/430/img/61430786_1.jpg?_v=20250125114622",
         description: "달콤한 카라멜과 에스프레소의 조화로운 음료",
         category: "커피",
+        isSoldOut: false,
     },
 ];

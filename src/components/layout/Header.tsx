@@ -27,7 +27,7 @@ const Header = () => {
       <header className="bg-white p-5 border-b border-gray-300 shadow-md">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 cursor-pointer" onClick={() => router.push('/')}>
               <Coffee className="h-10 w-10 text-amber-600" />
               <div className="leading-tight">
                 <h1 className="text-[20px] font-semibold text-gray-800 leading-none">

@@ -8,6 +8,7 @@ interface ButtonProps {
   bgColor?: string;
   hoverColor?: string;
   fontColor?: string;
+  disabled?: boolean;
   onClick?: () => void;
   className?: string;
 }
@@ -20,6 +21,7 @@ const Button = ({
   fontColor,
   onClick,
   className,
+  disabled, // disabled prop을 직접 받음
 }: ButtonProps) => {
   const bgClass = bgColor || "bg-white";
   const hoverClass = hoverColor || "hover:bg-gray-200";
@@ -31,7 +33,7 @@ const Button = ({
         flex 
         items-center
         justify-center       
-        cursor-pointer
+        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
         px-4 py-2 
         rounded 
         transition 
@@ -42,6 +44,7 @@ const Button = ({
         ${className || ""}
       `}
       onClick={onClick}
+      disabled={disabled}
     >
       {Icon && <Icon className="w-5 h-5 mr-2" />}
       <span className="font-medium">{text}</span>
