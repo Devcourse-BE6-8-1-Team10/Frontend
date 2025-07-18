@@ -20,7 +20,7 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
   editingProduct,
 }) => {
   const [name, setName] = useState("");
-  const [price, setPrice] = useState<number | null>(null);
+  const [price, setPrice] = useState<number>(0);
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<string | null>(null); // To store base64 string
@@ -36,7 +36,7 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
       setImagePreview(editingProduct.image); // Display existing image
     } else {
       setName("");
-      setPrice(null);
+      setPrice(0);
       setCategory("");
       setDescription("");
       setImage(null);
@@ -64,7 +64,7 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
     const newProduct: Product = {
       id: editingProduct ? editingProduct.id : Date.now(), // Simple ID generation
       name,
-      price: price !== null ? price : 0,
+      price,
       category,
       description,
       image: image || "", // Ensure image is a string, even if null
@@ -102,8 +102,8 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
             <Input
               id="price"
               type="number"
-              value={price !== null ? price.toString() : ""}
-              onChange={(e) => setPrice(e.target.value === '' ? null : Number(e.target.value))}
+              value={price.toString()}
+              onChange={(e) => setPrice(Number(e.target.value))}
               required
               className="w-full px-4 py-2 border-b-2 border-gray-200 focus:border-blue-500 outline-none text-lg"
             />

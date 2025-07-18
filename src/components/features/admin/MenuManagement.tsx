@@ -15,11 +15,21 @@ const MenuManagement: React.FC = () => {
   const [changedProducts, setChangedProducts] = useState<Set<number>>(new Set());
   const [showAddEditModal, setShowAddEditModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const categories = ['All', ...Array.from(new Set(PRODUCTS.map(product => product.category)))];
 
   useEffect(() => {
     setProducts(PRODUCTS);
     setOriginalProducts(PRODUCTS);
   }, []);
+
+  const filteredProducts = products.filter(product => {
+    const matchesSearchTerm = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+    return matchesSearchTerm && matchesCategory;
+  });
 
   const handleToggleSoldOut = (id: number) => {
     setProducts((prevProducts) =>
@@ -82,24 +92,44 @@ const MenuManagement: React.FC = () => {
     <div className="container mx-auto p-6 min-h-screen">
       <h1 className="text-3xl font-extrabold text-gray-800 mb-8 text-center">메뉴 관리</h1>
 
-      <div className="flex justify-end mb-6">
-        <Button
-          onClick={handleSave}
-          disabled={!hasChanges}
-          className="px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition duration-300 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed"
-          text="변경사항 저장"
-          fontColor="text-white"
-          bgColor="bg-indigo-600"
-          hoverColor="hover:bg-indigo-700"
-        />
-        <Button
-          onClick={handleAddMenu}
-          className="ml-4 px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition duration-300 ease-in-out"
-          text="메뉴 추가"
-          fontColor="text-white"
-          bgColor="bg-green-500"
-          hoverColor="hover:bg-green-600"
-        />
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex space-x-4">
+          <input
+            type="text"
+            placeholder="메뉴 검색..."
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <select
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            {categories.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex">
+          <Button
+            onClick={handleSave}
+            disabled={!hasChanges}
+            className="px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition duration-300 ease-in-out disabled:bg-gray-400 disabled:cursor-not-allowed"
+            text="변경사항 저장"
+            fontColor="text-white"
+            bgColor="bg-indigo-600"
+            hoverColor="hover:bg-indigo-700"
+          />
+          <Button
+            onClick={handleAddMenu}
+            className="ml-4 px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition duration-300 ease-in-out"
+            text="메뉴 추가"
+            fontColor="text-white"
+            bgColor="bg-green-500"
+            hoverColor="hover:bg-green-600"
+          />
+        </div>
       </div>
 
       <div className="overflow-x-auto bg-white shadow-lg rounded-lg">
@@ -117,7 +147,7 @@ const MenuManagement: React.FC = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <tr key={product.id} className={`hover:bg-gray-50 ${changedProducts.has(product.id) ? "bg-yellow-50" : ""}`}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.id}</td>
                 <td className="px-6 py-4 whitespace-nowrap">

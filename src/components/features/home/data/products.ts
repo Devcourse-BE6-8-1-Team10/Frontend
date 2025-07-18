@@ -52,7 +52,7 @@ export const PRODUCTS: Product[] = [
         price: 5000,
         image: "https://img.danawa.com/prod_img/500000/786/430/img/61430786_1.jpg?_v=20250125114622",
         description: "달콤한 카라멜과 에스프레소의 조화로운 음료",
-        category: "커피",
+        category: "햄스터",
         isSoldOut: false,
     },
 ];
