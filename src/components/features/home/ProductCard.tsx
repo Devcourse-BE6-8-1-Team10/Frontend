@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Button from "@/src/components/common/Button";
 import { Product } from "./types";
+import { useUser } from "./context/UserContext";
 
 interface ProductCardProps {
     product: Product;
@@ -11,6 +13,8 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, addToCart }: ProductCardProps) => {
     const [quantity, setQuantity] = useState(0);
+    const { isAuthenticated } = useUser();
+    const router = useRouter();
 
     const isSoldOut = product.isSoldOut;
 
@@ -27,19 +31,25 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
     };
 
     const handleAddToCart = () => {
-        if (isSoldOut) return; // 품절 시 장바구니 담기 방지
+        if (isSoldOut) return;
+
+        if (!isAuthenticated) {
+            alert("로그인이 필요한 서비스입니다.");
+            router.push("/member/login");
+            return;
+        }
 
         const quantityToAdd = quantity === 0 ? 1 : quantity;
         addToCart(product, quantityToAdd);
-        setQuantity(0); // Reset quantity after adding to cart
+        setQuantity(0);
     };
 
     return (
         <div className={`group relative flex h-full w-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg`}>
             <div className="aspect-w-3 aspect-h-4 overflow-hidden rounded-t-lg bg-gray-200 relative">
-                <img 
-                    src={product.image} 
-                    alt={product.name} 
+                <img
+                    src={product.image}
+                    alt={product.name}
                     className={`h-full w-full object-cover object-center transition-all duration-300 group-hover:scale-105 ${isSoldOut ? 'grayscale' : ''}`}
                 />
                 {isSoldOut && (
@@ -60,7 +70,7 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
                 <div className="flex flex-col justify-end pt-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center rounded-md border border-gray-300">
-                            <button 
+                            <button
                                 onClick={handleDecrease}
                                 className={`px-3 py-1 text-gray-600 transition hover:bg-gray-100 rounded-l-md ${isSoldOut ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                                 disabled={isSoldOut}
@@ -70,7 +80,7 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
                             <span className="px-4 py-1 text-sm font-medium text-gray-800">
                                 {quantity}
                             </span>
-                            <button 
+                            <button
                                 onClick={handleIncrease}
                                 className={`px-3 py-1 text-gray-600 transition hover:bg-gray-100 rounded-r-md ${isSoldOut ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                                 disabled={isSoldOut}
@@ -78,7 +88,7 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
                                 +
                             </button>
                         </div>
-                        <Button 
+                        <Button
                             text="+ 담기"
                             bgColor={isSoldOut ? "bg-gray-400" : "bg-black"}
                             fontColor="text-white"
