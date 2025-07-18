@@ -1,9 +1,12 @@
 import { useRouter } from "next/navigation";
 import { LogIn } from "lucide-react";
+import { useState } from "react";
 import { Modal } from "@/src/components/common/Modal";
 import { ModalContent } from "@/src/components/common/ModalContent";
 import { Input } from "@/src/components/common/Input";
 import { PrimaryButton } from "@/src/components/common/PrimaryButton";
+import { useUser } from "@/src/components/features/home/context/UserContext";
+import { PasswordInput } from "@/src/components/common/PasswordInput";
 
 export function LoginModal({
   onClose,
@@ -13,6 +16,29 @@ export function LoginModal({
   onLoginSuccess: () => void;
 }) {
   const router = useRouter();
+  const { login } = useUser();
+  // 폼 입력 상태
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 로그인 폼 제출 핸들러
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      // UserContext의 login 함수 호출
+      await login(email, password);
+      // 성공 시 콜백 실행 (예: 모달 닫기, 라우팅 등)
+      onLoginSuccess();
+    } catch (error) {
+      // 실패 시 에러 처리
+      console.error("로그인 실패:", error);
+      alert("로그인에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Modal onClose={onClose}>
@@ -23,17 +49,26 @@ export function LoginModal({
             로그인
           </h2>
         </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onLoginSuccess();
-          }}
-          className="space-y-5"
-        >
-          <Input placeholder="이메일" type="email" />
-          <Input placeholder="비밀번호" type="password" />
-          <PrimaryButton type="submit">로그인</PrimaryButton>
+        {/* 로그인 폼 */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            placeholder="이메일"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <PasswordInput
+            placeholder="비밀번호"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <PrimaryButton type="submit" disabled={isLoading}>
+            {isLoading ? "로그인 중..." : "로그인"}
+          </PrimaryButton>
         </form>
+        {/* 회원가입 안내 */}
         <div className="mt-8 text-center text-sm text-gray-600">
           아직 회원이 아니신가요?
           <button

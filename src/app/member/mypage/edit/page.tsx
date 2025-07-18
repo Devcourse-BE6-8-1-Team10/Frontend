@@ -1,29 +1,72 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/src/components/common/Input";
 import { useRouter } from "next/navigation";
 import PasswordChangeSection from "@/src/components/features/mypage/PasswordChangeSection";
 import Button from "@/src/components/common/Button";
+import { useUser } from "@/src/components/features/home/context/UserContext";
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const { user, isAuthenticated, fetchUserInfo, updateUserInfo } = useUser();
 
-  const [name, setName] = useState("김철수");
+  // 폼 입력값 상태
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
 
-  const email = "kimcs@example.com";
-  const address = "서울시 강남구 테헤란로 123";
+  // 사용자 정보 초기화 및 인증 체크
+  useEffect(() => {
+    if (!isAuthenticated) {
+      // 인증되지 않은 경우 로그인 페이지로 리다이렉트
+      router.push("/member/login");
+      return;
+    }
 
-  const handleSubmit = () => {
+    if (!user) {
+      // 인증은 되었지만 사용자 정보가 없는 경우 fetch
+      fetchUserInfo();
+    } else {
+      // 사용자 정보가 있으면 name 초기값 설정
+      setName(user.name);
+    }
+  }, [isAuthenticated, user, fetchUserInfo, router]);
+
+  // 회원 정보 수정 핸들러
+  const handleSubmit = async () => {
     if (password !== confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-    console.log("수정 완료");
+    try {
+      // UserContext의 updateUserInfo 함수 호출
+      await updateUserInfo({ name, password: password || undefined });
+      alert("회원 정보가 수정되었습니다.");
+      router.back();
+    } catch (error) {
+      alert("회원 정보 수정에 실패했습니다. 다시 시도해 주세요.");
+    }
   };
+
+  // 인증되지 않은 경우 로딩 표시
+  if (!isAuthenticated) {
+    return (
+      <main className="max-w-7xl mx-auto py-12 px-4">
+        <div>로그인 페이지로 이동 중...</div>
+      </main>
+    );
+  }
+
+  // 사용자 정보 로딩 중
+  if (!user) {
+    return (
+      <main className="max-w-7xl mx-auto py-12 px-4">
+        <div>사용자 정보를 불러오는 중...</div>
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-7xl mx-auto py-12 px-4">
@@ -39,7 +82,7 @@ export default function EditProfilePage() {
               <td>
                 <Input
                   type="email"
-                  value={email}
+                  value={user.email}
                   disabled
                   className="max-w-md bg-gray-100 text-gray-500"
                 />
@@ -65,6 +108,7 @@ export default function EditProfilePage() {
                 비밀번호
               </th>
               <td>
+                {/* 비밀번호 변경 섹션 */}
                 <PasswordChangeSection
                   currentPassword={currentPassword}
                   password={password}
@@ -83,7 +127,7 @@ export default function EditProfilePage() {
               <td>
                 <Input
                   type="text"
-                  value={address}
+                  value="주소는 주소 관리 탭에서 변경 가능합니다"
                   disabled
                   className="max-w-md bg-gray-100 text-gray-500"
                 />
