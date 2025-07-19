@@ -53,7 +53,7 @@ export default function UserInfoPanel() {
           <label className="block text-sm text-gray-500">기본 배송지</label>
           <p className="mt-2 text-lg text-gray-900">
             {defaultAddress
-              ? defaultAddress.address
+              ? defaultAddress.content
               : "등록된 주소가 없습니다."}
           </p>
         </div>

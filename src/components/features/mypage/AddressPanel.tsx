@@ -34,10 +34,15 @@ export default function AddressPanel() {
 
   // ───────────────────────────────
   // 핸들러 함수
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!inputValue.trim()) return;
-    add(inputValue.trim());
-    resetForm();
+    try {
+      await add(inputValue.trim());
+      resetForm();
+    } catch (error) {
+      console.error("주소 등록록 실패:", error);
+      alert("주소 추가에 실패했습니다.");
+    }
   };
 
   const handleEdit = (id: number) => {
@@ -47,8 +52,13 @@ export default function AddressPanel() {
   };
 
   const handleDelete = (id: number) => {
-    openConfirm("이 주소를 삭제하시겠습니까?", () => {
-      remove(id);
+    openConfirm("이 주소를 삭제하시겠습니까?", async () => {
+      try {
+        await remove(id);
+      } catch (error) {
+        console.error("주소 삭제 실패:", error);
+        alert("주소 삭제에 실패했습니다.");
+      }
     });
   };
 
@@ -94,7 +104,7 @@ export default function AddressPanel() {
                 <input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder={addr.address}
+                  placeholder={addr.content}
                   className="flex-1 p-2 border rounded"
                 />
                 <Button text="저장" onClick={() => handleEdit(addr.id)} />
@@ -107,7 +117,7 @@ export default function AddressPanel() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-lg text-gray-900 font-medium">
-                    {addr.address}
+                    {addr.content}
                     {addr.isDefault && (
                       <span className="text-sm text-amber-600 ml-2">
                         (기본 배송지)
@@ -130,7 +140,7 @@ export default function AddressPanel() {
                     onClick={() => {
                       resetForm();
                       setEditingId(addr.id);
-                      setInputValue(addr.address);
+                      setInputValue(addr.content);
                     }}
                     className="text-sm"
                   />
