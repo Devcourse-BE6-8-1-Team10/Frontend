@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Button from "@/src/components/common/Button";
 import TrashIcon from "@/src/components/common/TrashIcon";
 import PencilIcon from "@/src/components/common/PencilIcon";
-import ToggleSwitch from "@/src/components/common/ToggleSwitch";
 import { Product } from "@/src/components/features/home/types";
 import AddEditMenuModal from "@/src/components/features/admin/AddEditMenuModal";
 import { ProductService } from "@/src/lib/backend/services";
@@ -40,20 +39,20 @@ const MenuManagement: React.FC = () => {
     return matchesSearchTerm && matchesCategory;
   });
 
-  const handleToggleSoldOut = (id: number) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === id
-          ? { ...product, orderable: !product.orderable }
-          : product
-      )
-    );
-    setChangedProducts((prev) => new Set(prev.add(id)));
-  };
-
-  const handleDeleteProduct = (id: number) => {
-    setProducts((prevProducts) => prevProducts.filter((product) => product.id !== id));
-    setChangedProducts((prev) => new Set(prev.add(id))); // Mark as changed for deletion
+  const handleDeleteProduct = async (id: number) => {
+    if (confirm("정말로 이 상품을 삭제하시겠습니까?")) {
+      try {
+        await ProductService.deleteProduct(id);
+        // 상품 삭제 후 목록을 다시 불러옵니다.
+        const productData = await ProductService.getProducts();
+        setProducts(productData);
+        setOriginalProducts(productData);
+        setChangedProducts(new Set());
+      } catch (error) {
+        console.error("상품 삭제에 실패했습니다.", error);
+        alert("상품 삭제에 실패했습니다.");
+      }
+    }
   };
 
   const handleEditProduct = (id: number) => {
@@ -75,19 +74,16 @@ const MenuManagement: React.FC = () => {
     setShowAddEditModal(true);
   };
 
-  const handleSaveProduct = (product: Product) => {
-    setProducts((prevProducts) => {
-      const existingProductIndex = prevProducts.findIndex(p => p.id === product.id);
-      if (existingProductIndex > -1) {
-        return prevProducts.map((p, index) =>
-          index === existingProductIndex ? product : p
-        );
-      } else {
-        return [...prevProducts, product];
-      }
-    });
-    setChangedProducts((prev) => new Set(prev.add(product.id)));
+  const handleSaveProduct = async () => {
     setShowAddEditModal(false);
+    // Re-fetch products after save/edit
+    try {
+        const productData = await ProductService.getProducts();
+        setProducts(productData);
+        setOriginalProducts(productData);
+    } catch (error) {
+        console.error(error);
+    }
   };
 
   const hasChanges = changedProducts.size > 0;
@@ -167,14 +163,8 @@ const MenuManagement: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{product.price.toLocaleString()}원</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{product.category}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <ToggleSwitch
-                    isOn={product.orderable}
-                    handleToggle={() => handleToggleSoldOut(product.id)}
-                    onColor="bg-green-500"
-                    offColor="bg-red-500"
-                  />
-                  <span className={`ml-2 text-sm font-medium ${!product.orderable ? 'text-red-600' : 'text-green-600'}`}>
-                    {!product.orderable ? "품절" : "판매중"}
+                  <span className={`ml-2 text-sm font-medium ${product.orderable ? 'text-green-600' : 'text-red-600'}`}>
+                    {product.orderable ? "판매중" : "품절"}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">

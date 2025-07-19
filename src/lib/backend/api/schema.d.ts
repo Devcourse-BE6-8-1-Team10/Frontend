@@ -4,6 +4,58 @@
  */
 
 export interface paths {
+    "/api/adm/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** 상품 수정 */
+        put: operations["updateProduct"];
+        post?: never;
+        /** 상품 삭제 */
+        delete: operations["deleteProduct"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/adm/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 상품 생성 */
+        post: operations["createProduct"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 상품 목록 조회 */
+        get: operations["getProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/orders/{orderId}/address": {
         parameters: {
             query?: never;
@@ -488,6 +540,50 @@ export interface components {
             message?: string;
             data?: components["schemas"]["AddressListResBody"][];
         };
+        ProductDto: {
+            /** Format: int64 */
+            id: number;
+            /** Format: date-time */
+            createdDate: string;
+            /** Format: date-time */
+            modifiedDate: string;
+            productName: string;
+            /** Format: int32 */
+            price: number;
+            imageUrl: string | null;
+            category: string;
+            description: string;
+            orderable: boolean;
+        };
+        ProductListDto: {
+            items: components["schemas"]["ProductDto"][];
+        };
+        RsDataProductListDto: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["ProductListDto"];
+        };
+        RsDataProductDto: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["ProductDto"];
+        };
+        ProductCreateReqBody: {
+            productName: string;
+            price: number;
+            category: string;
+            description: string;
+            orderable: boolean;
+        };
+        ProductUpdateReqBody: {
+            productName?: string;
+            price?: number;
+            category?: string;
+            description?: string;
+            orderable?: boolean;
+        };
     };
     responses: never;
     parameters: never;
@@ -497,6 +593,98 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    updateProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ProductUpdateReqBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataProductDto"];
+                };
+            };
+        };
+    };
+    deleteProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataVoid"];
+                };
+            };
+        };
+    };
+    createProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ProductCreateReqBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataProductDto"];
+                };
+            };
+        };
+    };
+    getProducts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataProductListDto"];
+                };
+            };
+        };
+    };
     updateOrderAddress: {
         parameters: {
             query?: never;
