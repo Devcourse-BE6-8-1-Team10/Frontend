@@ -1,16 +1,16 @@
 "use client";
 
-import OrderManagement from "@/src/components/features/admin/OrderManagement";
+import MenuManagement from "../../../components/features/admin/MenuManagement";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
 import { useUser } from "@/src/components/features/home/context/UserContext";
 
-const AdminOrderPage: React.FC = () => {
+const AdminMenuPage: React.FC = () => {
   const { user } = useUser();
 
   return (
     <AuthGuard requireAuth={true}>
       {user?.isAdmin ? (
-        <OrderManagement />
+        <MenuManagement />
       ) : (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -27,4 +27,4 @@ const AdminOrderPage: React.FC = () => {
   );
 };
 
-export default AdminOrderPage;
+export default AdminMenuPage;

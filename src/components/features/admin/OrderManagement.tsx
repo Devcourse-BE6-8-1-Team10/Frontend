@@ -1,25 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Order, OrderStatus } from "./types";
-import { ORDERS } from "./data/orders";
+import React, { useState, useEffect, useCallback } from "react";
+import { Order, OrderStatus } from "@/src/components/features/home/context/OrderContext";
 import Button from "@/src/components/common/Button";
 import { FaPhone, FaMapMarkerAlt, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { useOrders } from "@/src/components/features/home/context/OrderContext";
+import { OrderService } from "@/src/lib/backend/services/orderService";
+
 
 const OrderManagement: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [originalOrders, setOriginalOrders] = useState<Order[]>([]);
-  const [changedOrders, setChangedOrders] = useState<Set<string>>(new Set());
+  const { orders, fetchOrders, loading, error } = useOrders();
+  const [changedOrders, setChangedOrders] = useState<Set<number>>(new Set());
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "All">("All");
-  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    setOrders(ORDERS);
-    setOriginalOrders(ORDERS);
-    setFilteredOrders(ORDERS);
-  }, []);
+    fetchOrders();
+  }, [fetchOrders]);
 
   useEffect(() => {
     let updatedOrders = orders;
@@ -27,65 +26,72 @@ const OrderManagement: React.FC = () => {
     if (searchTerm) {
       updatedOrders = updatedOrders.filter(
         (order) =>
-          order.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.id.toLowerCase().includes(searchTerm.toLowerCase())
+          order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.id.toString().includes(searchTerm.toLowerCase())
       );
     }
 
     if (statusFilter !== "All") {
-      updatedOrders = updatedOrders.filter((order) => order.status === statusFilter);
+      updatedOrders = updatedOrders.filter((order) => order.state === statusFilter);
     }
 
     setFilteredOrders(updatedOrders);
   }, [searchTerm, statusFilter, orders]);
 
-  const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
-    setOrders((prevOrders) =>
+  const handleStatusChange = (orderId: number, newStatus: OrderStatus) => {
+    setFilteredOrders((prevOrders) =>
       prevOrders.map((order) =>
-        order.id === orderId ? { ...order, status: newStatus } : order
+        order.id === orderId ? { ...order, state: newStatus } : order
       )
     );
     setChangedOrders((prev) => new Set(prev.add(orderId)));
   };
 
-  const handleSave = () => {
-    setOriginalOrders(orders);
-    setChangedOrders(new Set());
-    alert("변경사항이 저장되었습니다.");
+  const handleSave = async () => {
+    try {
+      for (const orderId of changedOrders) {
+        const orderToUpdate = filteredOrders.find((order) => order.id === orderId);
+        if (orderToUpdate) {
+          await OrderService.updateOrderStatus(orderToUpdate.id, orderToUpdate.state);
+        }
+      }
+      alert("변경사항이 저장되었습니다.");
+      setChangedOrders(new Set());
+      await fetchOrders();
+    } catch (err) {
+      console.error("Failed to save order changes:", err);
+      alert("변경사항 저장에 실패했습니다.");
+    }
   };
 
   const hasChanges = changedOrders.size > 0;
 
-  const statusOptions: (OrderStatus | "All")[] = [
-    "All",
-    "주문 접수",
-    "준비중",
-    "준비 완료",
-    "배송중",
-    "배송완료",
-    "취소",
+  const statusOptions: { value: OrderStatus | "All"; label: string }[] = [
+    { value: "All", label: "전체" },
+    { value: "ORDERED", label: "주문완료" },
+    { value: "SHIPPING", label: "배송중" },
+    { value: "COMPLETED", label: "배송완료" },
+    { value: "CANCELED", label: "주문취소" },
   ];
 
   const getStatusBadgeColor = (status: OrderStatus) => {
     switch (status) {
-      case "주문 접수":
+      case "ORDERED":
         return "bg-blue-100 text-blue-800";
-      case "준비중":
+      case "PAID":
         return "bg-yellow-100 text-yellow-800";
-      case "준비 완료":
-        return "bg-green-100 text-green-800";
-      case "배송중":
+      case "SHIPPING":
         return "bg-purple-100 text-purple-800";
-      case "배송완료":
-        return "bg-gray-100 text-gray-800";
-      case "취소":
+      case "COMPLETED":
+        return "bg-green-100 text-green-800";
+      case "CANCELED":
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
-  const toggleExpandOrder = (orderId: string) => {
+  const toggleExpandOrder = (orderId: number) => {
     setExpandedOrders((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(orderId)) {
@@ -119,8 +125,8 @@ const OrderManagement: React.FC = () => {
             onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "All")}
           >
             {statusOptions.map((status) => (
-              <option key={status} value={status}>
-                {status}
+              <option key={status.value} value={status.value}>
+                {status.label}
               </option>
             ))}
           </select>
@@ -139,29 +145,25 @@ const OrderManagement: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredOrders.map((order) => {
           const isExpanded = expandedOrders.has(order.id);
-          const itemsToShow = isExpanded ? order.items : order.items.slice(0, 2);
+          const itemsToShow = isExpanded ? order.orderItems : order.orderItems.slice(0, 2);
 
           return (
             <div key={order.id} className={`bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-xl flex flex-col ${changedOrders.has(order.id) ? "ring-2 ring-yellow-400" : ""}`}>
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="text-lg font-bold text-gray-800">#{order.id}</div>
-                  <div className="text-sm text-gray-500">{new Date().toLocaleDateString()}</div>
+                  <div className="text-sm text-gray-500">{new Date(order.createdDate).toLocaleDateString()}</div>
                 </div>
-                <div className={`text-xs font-bold py-1 px-3 rounded-full ${getStatusBadgeColor(order.status)}`}>
-                  {order.status}
+                <div className={`text-xs font-bold py-1 px-3 rounded-full ${getStatusBadgeColor(order.state)}`}>
+                  {statusOptions.find(option => option.value === order.state)?.label || order.state}
                 </div>
               </div>
 
               <div className="mb-4">
-                <div className="text-lg font-semibold text-gray-800">{order.userName}</div>
-                <div className="flex items-center text-sm text-gray-600 mt-1">
-                  <FaPhone className="mr-2" />
-                  {order.phoneNumber}
-                </div>
+                <div className="text-lg font-semibold text-gray-800">{order.customerEmail}</div>
                 <div className="flex items-center text-sm text-gray-600 mt-1">
                   <FaMapMarkerAlt className="mr-2" />
-                  {order.address}
+                  {order.customerAddress}
                 </div>
               </div>
 
@@ -170,12 +172,12 @@ const OrderManagement: React.FC = () => {
                 <ul className="space-y-2">
                   {itemsToShow.map((item, index) => (
                     <li key={index} className="flex justify-between text-sm">
-                      <span>{item.product.productName} x {item.quantity}</span>
-                      <span>{(item.product.price * item.quantity).toLocaleString()}원</span>
+                      <span>{item.name || `상품 ID: ${item.productId}`} x {item.count}</span>
+                      <span>{(item.price * item.count).toLocaleString()}원</span>
                     </li>
                   ))}
                 </ul>
-                {order.items.length > 2 && (
+                {order.orderItems.length > 2 && (
                   <button onClick={() => toggleExpandOrder(order.id)} className="text-sm text-blue-500 hover:underline mt-2 flex items-center">
                     {isExpanded ? "접기" : "더보기"}
                     {isExpanded ? <FaChevronUp className="ml-1" /> : <FaChevronDown className="ml-1" />}
@@ -186,16 +188,18 @@ const OrderManagement: React.FC = () => {
               <div className="border-t border-gray-200 pt-4 mt-auto">
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-bold text-gray-800">총 가격</span>
-                  <span className="font-bold text-xl text-blue-600">{order.totalPrice.toLocaleString()}원</span>
+                  <span className="font-bold text-xl text-blue-600">
+                    {order.orderItems.reduce((sum, item) => sum + item.price * item.count, 0).toLocaleString()}원
+                  </span>
                 </div>
                 <select
-                  value={order.status}
+                  value={order.state}
                   onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {statusOptions.slice(1).map((status) => (
-                    <option key={status} value={status}>
-                      {status}
+                    <option key={status.value} value={status.value}>
+                      {status.label}
                     </option>
                   ))}
                 </select>

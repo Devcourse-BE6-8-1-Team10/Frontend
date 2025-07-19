@@ -10,6 +10,9 @@ import {
 } from "react";
 import { useUser } from "@/src/components/features/home/context/UserContext";
 import { OrderService } from "@/src/lib/backend/services/orderService";
+import { components } from "@/src/lib/backend/api/schema";
+
+export type OrderStatus = components["schemas"]["OrderDto"]["state"];
 
 // 서버 스키마 기반 + 프론트 전용 상품명(name)만 추가
 export interface OrderItem {
@@ -29,7 +32,7 @@ export interface Order {
   id: number;
   customerEmail: string;
   createdDate: string;
-  state: string;
+  state: OrderStatus;
   customerAddress: string;
   orderItems: OrderItem[];
 }
@@ -50,7 +53,7 @@ interface OrderContextType {
   cancelOrder: (orderId: number) => Promise<void>;
   updateOrderAddress: (orderId: number, address: string) => Promise<void>;
   getOrderById: (orderId: number) => Order | undefined;
-  getOrdersByStatus: (state: string) => Order[];
+  getOrdersByStatus: (state: OrderStatus) => Order[];
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -78,7 +81,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         id: order.orderId,
         customerEmail: user?.email || "", // 현재 로그인한 사용자 이메일 사용
         createdDate: order.orderDate,
-        state: order.status,
+        state: order.status as OrderStatus,
         customerAddress: order.customerAddress,
         orderItems: order.orderItems.map((item, idx) => ({
           id: idx, // 임시 ID
@@ -128,7 +131,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
           id: orderDetail.orderId,
           customerEmail: user?.email || "",
           createdDate: orderDetail.orderDate,
-          state: orderDetail.status,
+          state: orderDetail.status as OrderStatus,
           customerAddress: orderDetail.customerAddress,
           orderItems: orderDetail.orderItems.map((item, idx) => ({
             id: idx,
