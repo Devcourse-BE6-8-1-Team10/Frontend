@@ -53,9 +53,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // 로그아웃: 사용자 정보 초기화
-  const clearUser = () => {
-    setUserState(null);
-  };
+  const clearUser = useCallback(async () => {
+    try {
+      await AuthService.logout();
+      setUserState(null);
+    } catch (error) {
+      console.error("로그아웃 오류:", error);
+      // 로그아웃 실패해도 로컬 상태는 초기화
+      setUserState(null);
+    }
+  }, []);
 
   // 사용자 정보 조회
   const fetchUserInfo = useCallback(async () => {
@@ -103,11 +110,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
-  // 회원 탈퇴 (TODO: openapi-fetch로 /api/members/withdraw 연동 필요)
+  // 회원 탈퇴
   const withdraw = useCallback(async () => {
-    // TODO: openapi-fetch로 /api/members/withdraw 호출
-    // 임시: 성공만 반환
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      await AuthService.withdraw();
+      setUserState(null); // 탈퇴 성공 시 로그아웃 처리
+    } catch (error) {
+      console.error("회원 탈퇴 오류:", error);
+      throw error;
+    }
   }, []);
 
   return (
