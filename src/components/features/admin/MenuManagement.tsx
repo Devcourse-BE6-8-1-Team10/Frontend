@@ -116,15 +116,6 @@ const MenuManagement: React.FC = () => {
         </div>
         <div className="flex gap-4 w-full sm:w-auto">
           <Button
-            onClick={handleSave}
-            disabled={!hasChanges}
-            className="w-full sm:w-auto"
-            text="변경사항 저장"
-            fontColor="text-white"
-            bgColor="bg-blue-600"
-            hoverColor="hover:bg-blue-700"
-          />
-          <Button
             onClick={handleAddMenu}
             className="w-full sm:w-auto"
             text="메뉴 추가"

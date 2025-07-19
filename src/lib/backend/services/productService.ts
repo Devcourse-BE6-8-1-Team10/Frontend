@@ -7,8 +7,15 @@ type ProductCreateReqBody = components["schemas"]["ProductCreateReqBody"];
 type ProductUpdateReqBody = components["schemas"]["ProductUpdateReqBody"];
 
 export class ProductService {
-    static async getProducts(): Promise<Product[]> {
-        const {data: response, error} = await client.GET("/api/products");
+    static async getProducts(page: number = 1, pageSize: number = 100): Promise<Product[]> {
+        const {data: response, error} = await client.GET("/api/products", {
+            params: {
+                query: {
+                    page,
+                    pageSize,
+                }
+            }
+        });
 
         if (error) {
             throw new Error("상품 목록을 불러오는데 실패했습니다.");

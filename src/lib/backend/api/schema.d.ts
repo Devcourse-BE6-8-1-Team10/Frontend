@@ -667,7 +667,10 @@ export interface operations {
     };
     getProducts: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
             header?: never;
             path?: never;
             cookie?: never;
