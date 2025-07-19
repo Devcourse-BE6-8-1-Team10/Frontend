@@ -36,7 +36,7 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
       setDescription(editingProduct.description);
       setImageFile(null); 
       setImagePreview(editingProduct.imageUrl);
-      setOrderable(editingProduct.orderable); // Initialize orderable state
+      setOrderable(editingProduct.orderable);
     } else {
       setName("");
       setPrice(0);
@@ -44,7 +44,7 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
       setDescription("");
       setImageFile(null);
       setImagePreview(null);
-      setOrderable(true); // Default to true for new products
+      setOrderable(true);
     }
   }, [editingProduct]);
 
@@ -81,8 +81,8 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
       } else {
         savedProduct = await ProductService.createProduct({ product: productData, file: imageFile });
       }
-      setImagePreview(savedProduct.imageUrl); // Update image preview with URL from server
-      onSave(savedProduct); // Pass the full product object to parent
+      setImagePreview(savedProduct.imageUrl);
+      onSave(savedProduct);
       onClose();
 
     } catch (error) {

@@ -63,12 +63,6 @@ const MenuManagement: React.FC = () => {
     }
   };
 
-  const handleSave = () => {
-    setOriginalProducts(products);
-    setChangedProducts(new Set());
-    alert("변경사항이 저장되었습니다.");
-  };
-
   const handleAddMenu = () => {
     setEditingProduct(undefined);
     setShowAddEditModal(true);
