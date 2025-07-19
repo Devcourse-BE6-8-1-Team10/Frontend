@@ -4,38 +4,48 @@ import React, { useState, useEffect } from "react";
 import Button from "@/src/components/common/Button";
 import TrashIcon from "@/src/components/common/TrashIcon";
 import PencilIcon from "@/src/components/common/PencilIcon";
-import { Product } from "@/src/components/features/home/types";
+import { Product } from "@/src/types";
 import AddEditMenuModal from "@/src/components/features/admin/AddEditMenuModal";
-import { ProductService } from "@/src/lib/backend/services";
+import { ProductService } from "@/src/services";
 
 const MenuManagement: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
-  const [changedProducts, setChangedProducts] = useState<Set<number>>(new Set());
+  const [changedProducts, setChangedProducts] = useState<Set<number>>(
+    new Set()
+  );
   const [showAddEditModal, setShowAddEditModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [editingProduct, setEditingProduct] = useState<Product | undefined>(
+    undefined
+  );
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   useEffect(() => {
     const fetchProducts = async () => {
-        try {
-            const productData = await ProductService.getProducts();
-            setProducts(productData);
-            setOriginalProducts(productData);
-        } catch (error) {
-            console.error(error);
-        }
+      try {
+        const productData = await ProductService.getProducts();
+        setProducts(productData);
+        setOriginalProducts(productData);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     fetchProducts();
   }, []);
 
-  const categories = ['All', ...Array.from(new Set(products.map(product => product.category)))];
+  const categories = [
+    "All",
+    ...Array.from(new Set(products.map((product) => product.category))),
+  ];
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearchTerm = product.productName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+  const filteredProducts = products.filter((product) => {
+    const matchesSearchTerm = product.productName
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || product.category === selectedCategory;
     return matchesSearchTerm && matchesCategory;
   });
 
@@ -56,7 +66,7 @@ const MenuManagement: React.FC = () => {
   };
 
   const handleEditProduct = (id: number) => {
-    const productToEdit = products.find(p => p.id === id);
+    const productToEdit = products.find((p) => p.id === id);
     if (productToEdit) {
       setEditingProduct(productToEdit);
       setShowAddEditModal(true);
@@ -72,11 +82,11 @@ const MenuManagement: React.FC = () => {
     setShowAddEditModal(false);
     // Re-fetch products after save/edit
     try {
-        const productData = await ProductService.getProducts();
-        setProducts(productData);
-        setOriginalProducts(productData);
+      const productData = await ProductService.getProducts();
+      setProducts(productData);
+      setOriginalProducts(productData);
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
   };
 
@@ -86,7 +96,9 @@ const MenuManagement: React.FC = () => {
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 min-h-screen">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-800">메뉴 관리</h1>
-        <p className="text-gray-500 mt-2">메뉴를 추가, 수정, 삭제하고 품절 상태를 관리하세요.</p>
+        <p className="text-gray-500 mt-2">
+          메뉴를 추가, 수정, 삭제하고 품절 상태를 관리하세요.
+        </p>
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -103,8 +115,10 @@ const MenuManagement: React.FC = () => {
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
             ))}
           </select>
         </div>
@@ -124,31 +138,64 @@ const MenuManagement: React.FC = () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">메뉴</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">가격</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">카테고리</th>
-              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">상태</th>
-              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">관리</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                메뉴
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                가격
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                카테고리
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                상태
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                관리
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredProducts.map((product) => (
-              <tr key={product.id} className={`transition-colors duration-200 ${changedProducts.has(product.id) ? "bg-yellow-50" : "hover:bg-gray-50"}`}>
+              <tr
+                key={product.id}
+                className={`transition-colors duration-200 ${
+                  changedProducts.has(product.id)
+                    ? "bg-yellow-50"
+                    : "hover:bg-gray-50"
+                }`}
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-12 w-12">
-                      <img className="h-12 w-12 rounded-md object-cover" src={product.imageUrl || ''} alt={product.productName} />
+                      <img
+                        className="h-12 w-12 rounded-md object-cover"
+                        src={product.imageUrl || ""}
+                        alt={product.productName}
+                      />
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{product.productName}</div>
-                      <div className="text-sm text-gray-500">{product.description}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {product.productName}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {product.description}
+                      </div>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{product.price.toLocaleString()}원</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{product.category}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                  {product.price.toLocaleString()}원
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  {product.category}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <span className={`ml-2 text-sm font-medium ${product.orderable ? 'text-green-600' : 'text-red-600'}`}>
+                  <span
+                    className={`ml-2 text-sm font-medium ${
+                      product.orderable ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
                     {product.orderable ? "판매중" : "품절"}
                   </span>
                 </td>

@@ -7,9 +7,9 @@ import UserInfoPanel from "@/src/components/features/mypage/UserInfoPanel";
 import AddressPanel from "@/src/components/features/mypage/AddressPanel";
 import OrdersPanel from "@/src/components/features/mypage/OrdersPanel";
 import SettingsPanel from "@/src/components/features/mypage/SettingsPanel";
-import { useUser } from "@/src/components/features/home/context/UserContext";
-import { useAddressContext } from "@/src/components/features/home/context/AddressContext";
-import { useOrders } from "@/src/components/features/home/context/OrderContext";
+import { useUser } from "@/src/store/auth";
+import { useAddressContext } from "@/src/store/address";
+import { useOrders } from "@/src/store/order";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
 
 export default function Mypage() {

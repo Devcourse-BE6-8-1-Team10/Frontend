@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { SignupModal } from "@/src/components/features/modals/SignupModal";
+import { SignupModal } from "@/src/components/features/auth/SignupModal";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
 
 export default function SignupPage() {

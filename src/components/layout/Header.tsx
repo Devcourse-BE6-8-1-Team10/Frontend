@@ -10,11 +10,11 @@ import {
   User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/src/components/features/home/context/UserContext";
+import { useUser } from "@/src/store/auth";
 import Button from "@/src/components/common/Button";
-import CartSidebar from "@/src/components/features/home/CartSidebar";
-import CompleteModal from "@/src/components/features/modals/CompleteModal";
-import { useCart } from "@/src/components/features/home/context/CartContext";
+import CartSidebar from "@/src/components/features/cart/CartSidebar";
+import CompleteModal from "@/src/components/features/order/CompleteModal";
+import { useCart } from "@/src/store/cart";
 
 // 상단 네비게이션/헤더 컴포넌트
 // 인증 상태에 따라 로그인/로그아웃/마이페이지/관리자/장바구니 버튼 표시

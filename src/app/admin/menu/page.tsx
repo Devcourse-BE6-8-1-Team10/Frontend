@@ -2,7 +2,7 @@
 
 import MenuManagement from "../../../components/features/admin/MenuManagement";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
-import { useUser } from "@/src/components/features/home/context/UserContext";
+import { useUser } from "@/src/store/auth";
 
 const AdminMenuPage: React.FC = () => {
   const { user } = useUser();

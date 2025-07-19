@@ -2,8 +2,8 @@ import Button from "@/src/components/common/Button";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useUser } from "@/src/components/features/home/context/UserContext";
-import { useAddressContext } from "@/src/components/features/home/context/AddressContext";
+import { useUser } from "@/src/store/auth";
+import { useAddressContext } from "@/src/store/address";
 
 // 마이페이지 - 회원 정보 패널
 // UserContext에서 사용자 정보(user)를 가져와 표시

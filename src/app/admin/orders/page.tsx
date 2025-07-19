@@ -2,7 +2,7 @@
 
 import OrderManagement from "@/src/components/features/admin/OrderManagement";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
-import { useUser } from "@/src/components/features/home/context/UserContext";
+import { useUser } from "@/src/store/auth";
 
 const AdminOrderPage: React.FC = () => {
   const { user } = useUser();
