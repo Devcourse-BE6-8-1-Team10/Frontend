@@ -8,6 +8,8 @@ import AddressPanel from "@/src/components/features/mypage/AddressPanel";
 import OrdersPanel from "@/src/components/features/mypage/OrdersPanel";
 import SettingsPanel from "@/src/components/features/mypage/SettingsPanel";
 import { useUser } from "@/src/components/features/home/context/UserContext";
+import { useAddressContext } from "@/src/components/features/home/context/AddressContext";
+import { useOrders } from "@/src/components/features/home/context/OrderContext";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
 
 export default function Mypage() {
@@ -15,14 +17,17 @@ export default function Mypage() {
     "info" | "address" | "orders" | "settings"
   >("info");
 
-  const { user, fetchUserInfo } = useUser();
+  const { user } = useUser();
+  const { fetchAddresses } = useAddressContext();
+  const { fetchOrders } = useOrders();
 
+  // 마이페이지 진입 시 주소 목록과 주문 내역 새로 로드
   useEffect(() => {
     if (user) {
-      // 사용자 정보가 있으면 fetchUserInfo 호출 (최신 정보로 업데이트)
-      fetchUserInfo();
+      fetchAddresses();
+      fetchOrders();
     }
-  }, [user, fetchUserInfo]);
+  }, [user, fetchAddresses, fetchOrders]);
 
   return (
     <AuthGuard requireAuth={true}>

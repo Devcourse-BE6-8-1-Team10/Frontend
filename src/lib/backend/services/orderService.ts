@@ -72,23 +72,6 @@ export class OrderService {
     return response.data;
   }
 
-  // 주문 상세 조회 (관리자용)
-  static async getOrderDetail(orderId: number): Promise<OrderDtoWithSpecific> {
-    const { data: response, error } = await client.GET("/api/orders/{orderId}/detail", {
-      params: { path: { orderId } },
-    });
-
-    if (error) {
-      throw new Error("주문 상세 조회에 실패했습니다.");
-    }
-
-    if (!response?.data) {
-      throw new Error("주문 상세 정보가 없습니다.");
-    }
-
-    return response.data;
-  }
-
   // 회원의 주문 내역 전체 조회
   static async getMemberOrders(): Promise<UserOrder[]> {
     const { data: response, error } = await client.GET("/api/members/orders");

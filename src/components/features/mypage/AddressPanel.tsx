@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "@/src/components/common/Button";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
@@ -45,10 +45,15 @@ export default function AddressPanel() {
     }
   };
 
-  const handleEdit = (id: number) => {
+  const handleEdit = async (id: number) => {
     if (!inputValue.trim()) return;
-    edit(id, inputValue.trim());
-    resetForm();
+    try {
+      await edit(id, inputValue.trim());
+      resetForm();
+    } catch (error) {
+      console.error("주소 수정 실패:", error);
+      alert("주소 수정에 실패했습니다.");
+    }
   };
 
   const handleDelete = (id: number) => {
@@ -63,8 +68,13 @@ export default function AddressPanel() {
   };
 
   const handleSetDefault = (id: number) => {
-    openConfirm("기본 배송지를 변경하시겠습니까?", () => {
-      setDefault(id);
+    openConfirm("기본 배송지를 변경하시겠습니까?", async () => {
+      try {
+        await setDefault(id);
+      } catch (error) {
+        console.error("기본 주소 설정 실패:", error);
+        alert("기본 주소 설정에 실패했습니다.");
+      }
     });
   };
 

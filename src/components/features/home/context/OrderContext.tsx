@@ -102,16 +102,14 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
-  // 사용자 로그인 상태에 따른 주문 목록 자동 조회
+  // 사용자 로그아웃 시 주문 목록 초기화
   useEffect(() => {
-    if (user) {
-      fetchOrders();
-    } else {
+    if (!user) {
       setOrders([]);
     }
-  }, [user, fetchOrders]);
+  }, [user]);
 
   // 회원 주문 상세 조회
   const fetchOrderDetail = useCallback(
@@ -165,7 +163,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       setError(null);
       try {
         // 서버에 주문 생성 요청
-        await OrderService.createOrder({
+        const createdOrder = await OrderService.createOrder({
           customerAddress: orderData.customerAddress,
           orderItems: orderData.orderItems,
         });
@@ -173,14 +171,32 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         // 주문 목록 새로고침 (서버에서 최신 데이터 조회)
         await fetchOrders();
 
-        // 새로 생성된 주문을 찾아서 반환 (첫 번째 주문이 가장 최신)
-        const latestOrder = orders[0];
-        if (latestOrder) {
-          return latestOrder;
-        }
-
-        // 주문을 찾지 못한 경우 기본값 반환
-        throw new Error("생성된 주문을 찾을 수 없습니다.");
+        // 서버 응답에서 생성된 주문 정보 반환
+        // orderItems가 없을 경우 요청 데이터를 사용
+        return {
+          id: createdOrder.id,
+          customerEmail: orderData.customerEmail,
+          createdDate: createdOrder.createdDate,
+          state: createdOrder.state,
+          customerAddress: createdOrder.customerAddress,
+          orderItems:
+            createdOrder.orderItems?.map((item, idx) => ({
+              id: idx,
+              orderId: createdOrder.id,
+              productId: item.productId,
+              count: item.count,
+              price: item.price,
+              name: `상품${item.productId}`, // 서버에서 name이 없으므로 임시 처리
+            })) ||
+            orderData.orderItems.map((item, idx) => ({
+              id: idx,
+              orderId: createdOrder.id,
+              productId: item.productId,
+              count: item.count,
+              price: 0, // 서버에서 가격 정보가 없으므로 0으로 설정
+              name: `상품${item.productId}`,
+            })),
+        };
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "주문 생성에 실패했습니다.";
@@ -191,7 +207,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     },
-    [orders, fetchOrders]
+    [fetchOrders]
   );
 
   // 주문 취소
