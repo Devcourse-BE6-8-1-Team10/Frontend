@@ -43,7 +43,7 @@ const AddressSelectModal: React.FC<AddressSelectModalProps> = (props) => {
         props.confirmMessage ||
         "배송지가 변경되었습니다. 주소를 등록하시겠습니까?",
       onConfirm: async () => {
-        if (!addresses.some((a) => a.address === editAddress)) {
+        if (!addresses.some((a) => a.content === editAddress)) {
           await add(editAddress);
         }
         await props.onEditSave(editAddress);
@@ -60,7 +60,7 @@ const AddressSelectModal: React.FC<AddressSelectModalProps> = (props) => {
 
   // 새 주소 등록
   const handleRegisterNew = async () => {
-    if (!addresses.some((a) => a.address === newAddress)) {
+    if (!addresses.some((a) => a.content === newAddress)) {
       await add(newAddress);
     }
     setShowNewInput(false);
@@ -146,13 +146,13 @@ const AddressSelectModal: React.FC<AddressSelectModalProps> = (props) => {
               <li
                 key={addr.id}
                 className={`border p-4 rounded cursor-pointer hover:bg-gray-50 flex items-center justify-between transition-colors duration-150 ${
-                  props.currentAddress === addr.address
+                  props.currentAddress === addr.content
                     ? "border-amber-600 bg-amber-50"
                     : "border-gray-300"
                 }`}
-                onClick={() => handleSelect(addr.address)}
+                onClick={() => handleSelect(addr.content)}
               >
-                <span className="text-lg">{addr.address}</span>
+                <span className="text-lg">{addr.content}</span>
                 <div className="flex items-center gap-2">
                   {addr.isDefault && (
                     <span className="ml-2 px-2 py-1 text-xs bg-amber-100 text-amber-700 rounded">

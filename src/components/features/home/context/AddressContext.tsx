@@ -103,7 +103,7 @@ export function AddressProvider({ children }: { children: ReactNode }) {
     setAddresses((prev) => prev.map((a) => ({ ...a, isDefault: a.id === id })));
   }, []);
 
-  // 주소 전체 초기화 (TODO: 회원 탈퇴/로그아웃 시 등 필요시 연동)
+  // 주소 전체 초기화
   const reset = useCallback(() => setAddresses([]), []);
 
   return (
