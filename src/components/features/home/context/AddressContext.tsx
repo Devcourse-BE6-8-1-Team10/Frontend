@@ -24,7 +24,7 @@ interface AddressContextType {
   edit: (id: number, newAddress: string) => void; // TODO: 실제 API 연동 필요
   remove: (id: number) => Promise<void>;
   setDefault: (id: number) => void; // TODO: 실제 API 연동 필요
-  reset: () => void; // TODO: 실제 API 연동 필요
+  reset: () => void;
   fetchAddresses: () => Promise<void>;
 }
 
