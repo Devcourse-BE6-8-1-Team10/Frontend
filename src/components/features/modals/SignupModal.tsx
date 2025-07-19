@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { Modal } from "@/src/components/common/Modal";
@@ -7,6 +7,10 @@ import { Input } from "@/src/components/common/Input";
 import { PrimaryButton } from "@/src/components/common/PrimaryButton";
 import { useUser } from "@/src/components/features/home/context/UserContext";
 import { PasswordInput } from "@/src/components/common/PasswordInput";
+import {
+  validatePassword,
+  validatePasswordConfirm,
+} from "@/src/lib/utils/validation";
 
 // 회원가입 모달: 폼 입력값을 UserContext의 signup 함수에만 전달
 // 실제 회원가입 API 연동/토큰 저장 등은 UserContext에서만 처리
@@ -25,14 +29,50 @@ export function SignupModal({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+
+  // 비밀번호 유효성 검사
+  useEffect(() => {
+    if (password) {
+      const validation = validatePassword(password);
+      setPasswordError(validation.isValid ? "" : validation.message);
+    } else {
+      setPasswordError("");
+    }
+  }, [password]);
+
+  // 비밀번호 확인 유효성 검사
+  useEffect(() => {
+    if (confirmPassword) {
+      const validation = validatePasswordConfirm(password, confirmPassword);
+      setConfirmPasswordError(validation.isValid ? "" : validation.message);
+    } else {
+      setConfirmPasswordError("");
+    }
+  }, [password, confirmPassword]);
 
   // 회원가입 폼 제출 핸들러
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
+
+    // 비밀번호 유효성 검사
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      alert(passwordValidation.message);
       return;
     }
+
+    // 비밀번호 확인 검사
+    const confirmValidation = validatePasswordConfirm(
+      password,
+      confirmPassword
+    );
+    if (!confirmValidation.isValid) {
+      alert(confirmValidation.message);
+      return;
+    }
+
     setIsLoading(true);
     try {
       // UserContext의 signup 함수만 호출
@@ -97,9 +137,13 @@ export function SignupModal({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <p className="mt-1 text-xs text-gray-500">
-              영문, 숫자 포함 8자 이상 입력해 주세요.
-            </p>
+            {passwordError ? (
+              <p className="mt-1 text-xs text-red-500">{passwordError}</p>
+            ) : (
+              <p className="mt-1 text-xs text-gray-500">
+                8자 이상 입력해 주세요.
+              </p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -111,6 +155,11 @@ export function SignupModal({
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
+            {confirmPasswordError && (
+              <p className="mt-1 text-xs text-red-500">
+                {confirmPasswordError}
+              </p>
+            )}
           </div>
           <PrimaryButton type="submit" disabled={isLoading}>
             {isLoading ? "회원가입 중..." : "회원가입"}
