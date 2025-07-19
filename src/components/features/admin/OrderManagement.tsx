@@ -13,16 +13,18 @@ import { useOrders } from "@/src/store/order";
 import { OrderService } from "@/src/services/orderService";
 
 const OrderManagement: React.FC = () => {
-  const { orders, fetchOrders, loading, error } = useOrders();
+  // fetchAdminOrders를 사용하여 관리자 주문 목록을 불러온다
+  const { orders, fetchAdminOrders, loading, error } = useOrders();
   const [changedOrders, setChangedOrders] = useState<Set<number>>(new Set());
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "All">("All");
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
 
+  // 컴포넌트 마운트 시 관리자 주문 목록 불러오기
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    fetchAdminOrders();
+  }, [fetchAdminOrders]);
 
   useEffect(() => {
     let updatedOrders = orders;
@@ -70,7 +72,7 @@ const OrderManagement: React.FC = () => {
       }
       alert("변경사항이 저장되었습니다.");
       setChangedOrders(new Set());
-      await fetchOrders();
+      await fetchAdminOrders(); // 저장 후 목록 새로고침
     } catch (err) {
       console.error("Failed to save order changes:", err);
       alert("변경사항 저장에 실패했습니다.");

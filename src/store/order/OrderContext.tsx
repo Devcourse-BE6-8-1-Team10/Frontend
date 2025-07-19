@@ -54,6 +54,7 @@ interface OrderContextType {
   updateOrderAddress: (orderId: number, address: string) => Promise<void>;
   getOrderById: (orderId: number) => Order | undefined;
   getOrdersByStatus: (state: OrderStatus) => Order[];
+  fetchAdminOrders: () => Promise<void>; // 추가
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -75,7 +76,6 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const memberOrders = await OrderService.getMemberOrders();
-
       // 서버 응답을 프론트엔드 Order 타입으로 변환
       const convertedOrders: Order[] = memberOrders.map((order) => ({
         id: order.orderId,
@@ -92,7 +92,6 @@ export function OrderProvider({ children }: { children: ReactNode }) {
           name: item.productName,
         })),
       }));
-
       setOrders(convertedOrders);
     } catch (err) {
       const errorMessage =
@@ -106,6 +105,26 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   }, [user]);
+
+  // 관리자 주문 목록 조회
+  const fetchAdminOrders = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const adminOrders = await OrderService.getOrders();
+      setOrders(adminOrders);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "관리자 주문 목록을 불러오는데 실패했습니다.";
+      setError(errorMessage);
+      setOrders([]);
+      console.error("관리자 주문 목록 조회 실패:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // 사용자 로그아웃 시 주문 목록 초기화
   useEffect(() => {
@@ -282,6 +301,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         loading,
         error,
         fetchOrders,
+        fetchAdminOrders, // 추가
         fetchOrderDetail,
         createOrder,
         cancelOrder,
