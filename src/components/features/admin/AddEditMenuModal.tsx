@@ -28,12 +28,12 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
 
   useEffect(() => {
     if (editingProduct) {
-      setName(editingProduct.name);
+      setName(editingProduct.productName);
       setPrice(editingProduct.price);
       setCategory(editingProduct.category);
       setDescription(editingProduct.description);
-      setImage(editingProduct.image); // Assuming editingProduct.image is a URL or base64
-      setImagePreview(editingProduct.image); // Display existing image
+      setImage(editingProduct.imageUrl);
+      setImagePreview(editingProduct.imageUrl);
     } else {
       setName("");
       setPrice(0);
@@ -63,12 +63,14 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
     e.preventDefault();
     const newProduct: Product = {
       id: editingProduct ? editingProduct.id : Date.now(), // Simple ID generation
-      name,
+      productName: name,
       price,
       category,
       description,
-      image: image || "", // Ensure image is a string, even if null
-      isSoldOut: editingProduct ? editingProduct.isSoldOut : false,
+      imageUrl: image || "", // Ensure image is a string, even if null
+      orderable: editingProduct ? editingProduct.orderable : true,
+      createdDate: editingProduct ? editingProduct.createdDate : new Date().toISOString(),
+      modifiedDate: new Date().toISOString(),
     };
     onSave(newProduct);
   };

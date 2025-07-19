@@ -1,22 +1,37 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Category from "./Category";
 import ProductList from "./ProductList";
 import { useCart } from "@/src/components/features/home/context/CartContext";
-import { PRODUCTS } from "./data/products";
+import { ProductService } from "@/src/lib/backend/services";
+import { Product } from "./types";
 
 const ProductSection = () => {
     const { addToCart } = useCart();
+    const [products, setProducts] = useState<Product[]>([]);
     const [selectedCategory, setSelectedCategory] = useState("전체");
 
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const productData = await ProductService.getProducts();
+                setProducts(productData);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
     const filteredProducts = selectedCategory === "전체"
-        ? PRODUCTS
-        : PRODUCTS.filter(product => product.category === selectedCategory);
+        ? products
+        : products.filter(product => product.category === selectedCategory);
 
     return (
         <>
-            <Category selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+            <Category products={products} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
             <ProductList products={filteredProducts} addToCart={addToCart} />
         </>
     )

@@ -5,9 +5,9 @@ import Button from "@/src/components/common/Button";
 import TrashIcon from "@/src/components/common/TrashIcon";
 import PencilIcon from "@/src/components/common/PencilIcon";
 import ToggleSwitch from "@/src/components/common/ToggleSwitch";
-import {PRODUCTS} from "@/src/components/features/home/data/products";
-import {Product} from "@/src/components/features/home/types";
+import { Product } from "@/src/components/features/home/types";
 import AddEditMenuModal from "@/src/components/features/admin/AddEditMenuModal";
+import { ProductService } from "@/src/lib/backend/services";
 
 const MenuManagement: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -18,15 +18,24 @@ const MenuManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
-  const categories = ['All', ...Array.from(new Set(PRODUCTS.map(product => product.category)))];
-
   useEffect(() => {
-    setProducts(PRODUCTS);
-    setOriginalProducts(PRODUCTS);
+    const fetchProducts = async () => {
+        try {
+            const productData = await ProductService.getProducts();
+            setProducts(productData);
+            setOriginalProducts(productData);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    fetchProducts();
   }, []);
 
+  const categories = ['All', ...Array.from(new Set(products.map(product => product.category)))];
+
   const filteredProducts = products.filter(product => {
-    const matchesSearchTerm = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearchTerm = product.productName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearchTerm && matchesCategory;
   });
@@ -35,7 +44,7 @@ const MenuManagement: React.FC = () => {
     setProducts((prevProducts) =>
       prevProducts.map((product) =>
         product.id === id
-          ? { ...product, isSoldOut: !product.isSoldOut }
+          ? { ...product, orderable: !product.orderable }
           : product
       )
     );
@@ -147,10 +156,10 @@ const MenuManagement: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-12 w-12">
-                      <img className="h-12 w-12 rounded-md object-cover" src={product.image} alt={product.name} />
+                      <img className="h-12 w-12 rounded-md object-cover" src={product.imageUrl || ''} alt={product.productName} />
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{product.productName}</div>
                       <div className="text-sm text-gray-500">{product.description}</div>
                     </div>
                   </div>
@@ -159,13 +168,13 @@ const MenuManagement: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{product.category}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-center">
                   <ToggleSwitch
-                    isOn={!product.isSoldOut}
+                    isOn={product.orderable}
                     handleToggle={() => handleToggleSoldOut(product.id)}
                     onColor="bg-green-500"
                     offColor="bg-red-500"
                   />
-                  <span className={`ml-2 text-sm font-medium ${product.isSoldOut ? 'text-red-600' : 'text-green-600'}`}>
-                    {product.isSoldOut ? "품절" : "판매중"}
+                  <span className={`ml-2 text-sm font-medium ${!product.orderable ? 'text-red-600' : 'text-green-600'}`}>
+                    {!product.orderable ? "품절" : "판매중"}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">

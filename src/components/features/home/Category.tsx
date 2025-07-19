@@ -1,18 +1,20 @@
 "use client";
 
 import Button from "@/src/components/common/Button";
-
-const CATEGORIES = ["전체", "커피", "디저트", "음료", "베이커리"];
+import { Product } from "./types";
 
 interface CategoryProps {
+    products: Product[];
     selectedCategory: string;
     onSelectCategory: (category: string) => void;
 }
 
-const Category = ({ selectedCategory, onSelectCategory }: CategoryProps) => {
+const Category = ({ products, selectedCategory, onSelectCategory }: CategoryProps) => {
+    const categories = ["전체", ...Array.from(new Set(products.map(p => p.category)))];
+
     return (
         <div className="flex items-center space-x-4 py-4">
-            {CATEGORIES.map((category) => (
+            {categories.map((category) => (
                 <Button
                     key={category}
                     text={category}
