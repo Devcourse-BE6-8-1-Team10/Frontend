@@ -5,6 +5,7 @@ import { Modal } from "@/src/components/common/Modal";
 import { Input } from "@/src/components/common/Input";
 import Button from "@/src/components/common/Button";
 import { Product } from "@/src/components/features/home/types";
+import { ProductService } from "@/src/lib/backend/services";
 
 interface AddEditMenuModalProps {
   isOpen: boolean;
@@ -23,8 +24,9 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
   const [price, setPrice] = useState<number>(0);
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState<string | null>(null); // To store base64 string
+  const [imageFile, setImageFile] = useState<File | null>(null); // To store the actual File object
   const [imagePreview, setImagePreview] = useState<string | null>(null); // To display image preview
+  const [orderable, setOrderable] = useState(true); // New state for orderable
 
   useEffect(() => {
     if (editingProduct) {
@@ -32,47 +34,61 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
       setPrice(editingProduct.price);
       setCategory(editingProduct.category);
       setDescription(editingProduct.description);
-      setImage(editingProduct.imageUrl);
+      setImageFile(null); 
       setImagePreview(editingProduct.imageUrl);
+      setOrderable(editingProduct.orderable);
     } else {
       setName("");
       setPrice(0);
       setCategory("");
       setDescription("");
-      setImage(null);
+      setImageFile(null);
       setImagePreview(null);
+      setOrderable(true);
     }
   }, [editingProduct]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImage(reader.result as string);
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     } else {
-      setImage(null);
+      setImageFile(null);
       setImagePreview(null);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newProduct: Product = {
-      id: editingProduct ? editingProduct.id : Date.now(), // Simple ID generation
+
+    const productData = {
       productName: name,
       price,
       category,
       description,
-      imageUrl: image || "", // Ensure image is a string, even if null
-      orderable: editingProduct ? editingProduct.orderable : true,
-      createdDate: editingProduct ? editingProduct.createdDate : new Date().toISOString(),
-      modifiedDate: new Date().toISOString(),
+      orderable, // Use the new orderable state
     };
-    onSave(newProduct);
+
+    try {
+      let savedProduct: Product;
+      if (editingProduct) {
+        savedProduct = await ProductService.updateProduct(editingProduct.id, { product: productData, file: imageFile });
+      } else {
+        savedProduct = await ProductService.createProduct({ product: productData, file: imageFile });
+      }
+      setImagePreview(savedProduct.imageUrl);
+      onSave(savedProduct);
+      onClose();
+
+    } catch (error) {
+      console.error("Failed to save product:", error);
+      alert("상품 저장에 실패했습니다.");
+    }
   };
 
   if (!isOpen) return null;
@@ -153,6 +169,18 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
               </div>
             )}
           </div>
+          <div className="flex items-center mt-6">
+            <input
+              id="soldOut"
+              type="checkbox"
+              checked={!orderable}
+              onChange={(e) => setOrderable(!e.target.checked)}
+              className="h-5 w-5 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+            />
+            <label htmlFor="soldOut" className="ml-2 block text-gray-700 text-sm font-semibold">
+              품절
+            </label>
+          </div>
           <div className="flex justify-end space-x-4 pt-6">
             <Button
               onClick={onClose}
@@ -177,3 +205,4 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
 };
 
 export default AddEditMenuModal;
+
