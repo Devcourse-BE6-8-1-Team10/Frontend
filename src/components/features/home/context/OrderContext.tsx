@@ -171,27 +171,28 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     [fetchOrders]
   );
 
+  // 주문 배송지 변경
   const updateOrderAddress = useCallback(
     async (orderId: number, address: string) => {
       setLoading(true);
       setError(null);
       try {
-        setOrders((prev) =>
-          prev.map((order) =>
-            order.id === orderId
-              ? { ...order, customerAddress: address }
-              : order
-          )
-        );
+        // 서버에 배송지 변경 요청
+        await OrderService.updateOrderAddress(orderId, address);
+
+        // 주문 목록 새로고침 (서버에서 최신 데이터 조회)
+        await fetchOrders();
       } catch (err) {
-        setError("배송지 변경에 실패했습니다.");
+        const errorMessage =
+          err instanceof Error ? err.message : "배송지 변경에 실패했습니다.";
+        setError(errorMessage);
         console.error("배송지 변경 실패:", err);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    []
+    [fetchOrders]
   );
 
   const getOrderById = useCallback(
