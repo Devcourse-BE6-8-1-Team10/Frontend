@@ -1,6 +1,6 @@
 import {Product} from "@/src/components/features/home/types";
 
-export type OrderStatus = '주문 접수' | '준비중' | '준비 완료' | '배송중' | '배송완료' | '취소';
+export type OrderStatus = 'ORDERED' | 'PAID' | 'SHIPPING' | 'COMPLETED' | 'CANCELED';
 
 export interface OrderItem {
   product: Product;

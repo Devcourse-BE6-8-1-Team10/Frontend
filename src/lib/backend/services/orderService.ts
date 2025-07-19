@@ -3,7 +3,10 @@ import type { components } from "../api/schema.d.ts";
 
 // 타입 정의
 type OrderCreateReqBody = components["schemas"]["OrderCreateReqBody"];
+import { OrderStatus } from "@/src/components/features/home/context/OrderContext";
+
 type OrderUpdateAddressReqBody = components["schemas"]["OrderUpdateAddressReqBody"];
+type OrderUpdateStatusReqBody = { status: OrderStatus };
 type OrderDto = components["schemas"]["OrderDto"];
 type OrderDtoWithSpecific = components["schemas"]["OrderDtoWithSpecific"];
 type UserOrderResponseBody = components["schemas"]["UserOrderResponseBody"];
@@ -21,7 +24,7 @@ export interface Order {
   id: number;
   customerEmail: string;
   createdDate: string;
-  state: "ORDERED" | "PAID" | "SHIPPING" | "COMPLETED" | "CANCELED";
+  state: OrderStatus;
   customerAddress: string;
   orderItems: OrderItem[];
 }
@@ -163,6 +166,18 @@ export class OrderService {
 
     if (error) {
       throw new Error("주문 주소 변경에 실패했습니다.");
+    }
+  }
+
+  // 주문 상태 변경
+  static async updateOrderStatus(orderId: number, newStatus: OrderStatus): Promise<void> {
+    const { error } = await client.PUT("/api/adm/orders/{orderId}/status", {
+      params: { path: { orderId } },
+      body: { status: newStatus },
+    });
+
+    if (error) {
+      throw new Error("주문 상태 변경에 실패했습니다.");
     }
   }
 } 
