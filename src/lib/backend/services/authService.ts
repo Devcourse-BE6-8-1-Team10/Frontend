@@ -3,6 +3,7 @@ import type { components } from "../api/schema.d.ts";
 
 type MemberJoinReqBody = components["schemas"]["MemberJoinReqBody"];
 type MemberLoginReqBody = components["schemas"]["MemberLoginReqBody"];
+type MemberUpdateDto = components["schemas"]["MemberUpdateDto"];
 type MemberWithAuthDto = components["schemas"]["MemberWithAuthDto"];
 
 export interface UserInfo {
@@ -37,9 +38,10 @@ export class AuthService {
 
   // 로그인
   static async login(data: MemberLoginReqBody): Promise<UserInfo> {
-    const { data: response, error } = await client.POST("/api/members/login", {
-      body: data,
-    });
+    try {
+      const { data: response, error } = await client.POST("/api/members/login", {
+        body: data,
+      });
 
     if (error) {
       throw new Error("로그인에 실패했습니다.");
@@ -49,12 +51,25 @@ export class AuthService {
       throw new Error("로그인 응답 데이터가 없습니다.");
     }
 
-    return {
-      id: response.data.member.id,
-      email: response.data.member.email,
-      name: response.data.member.name,
-      isAdmin: response.data.member.isAdmin,
-    };
+      // member 필드가 없을 수 있으므로 확인
+      if (!response.data.member) {
+        console.error("로그인 응답에 member 정보 없음:", response.data);
+        throw new Error("로그인 응답에 사용자 정보가 없습니다.");
+      }
+
+      const userInfo = {
+        id: response.data.member.id,
+        email: response.data.member.email,
+        name: response.data.member.name,
+        isAdmin: response.data.member.isAdmin,
+      };
+
+      console.log("로그인 성공 - 사용자 정보:", userInfo);
+      return userInfo;
+    } catch (error) {
+      console.error("로그인 전체 에러:", error);
+      throw error;
+    }
   }
 
   // 사용자 정보 조회
@@ -84,6 +99,28 @@ export class AuthService {
     if (error) {
       throw new Error("로그아웃에 실패했습니다.");
     }
+  }
+
+  // 회원 정보 수정
+  static async updateMemberInfo(data: MemberUpdateDto): Promise<UserInfo> {
+    const { data: response, error } = await client.PUT("/api/members/info", {
+      body: data,
+    });
+
+    if (error) {
+      throw new Error("회원 정보 수정에 실패했습니다.");
+    }
+
+    if (!response?.data) {
+      throw new Error("회원 정보 수정 응답 데이터가 없습니다.");
+    }
+
+    return {
+      id: response.data.id,
+      email: response.data.email,
+      name: response.data.name,
+      isAdmin: response.data.isAdmin,
+    };
   }
 
   // 회원 탈퇴

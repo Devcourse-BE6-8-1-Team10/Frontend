@@ -1,14 +1,17 @@
 "use client";
 import { useRouter } from "next/navigation";
-import {SignupModal} from "@/src/components/features/modals/SignupModal";
+import { SignupModal } from "@/src/components/features/modals/SignupModal";
+import { AuthGuard } from "@/src/components/common/AuthGuard";
 
 export default function SignupPage() {
   const router = useRouter();
 
   return (
-    <SignupModal
-      onClose={() => router.push("/")}
-      onSignupSuccess={() => router.push("/")}
-    />
+    <AuthGuard requireAuth={false}>
+      <SignupModal
+        onClose={() => router.push("/")}
+        onSignupSuccess={() => router.push("/")}
+      />
+    </AuthGuard>
   );
 }

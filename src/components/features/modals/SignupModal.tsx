@@ -37,8 +37,9 @@ export function SignupModal({
     try {
       // UserContext의 signup 함수만 호출
       await signup(name, email, password);
-      // 성공 시 콜백 실행
-      onSignupSuccess();
+      // 성공 시 회원가입 완료 메시지 표시 후 로그인 페이지로 이동
+      alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.");
+      router.push("/member/login");
     } catch (error) {
       // 실패 시 에러 처리
       console.error("회원가입 실패:", error);
