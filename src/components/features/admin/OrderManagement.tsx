@@ -4,8 +4,12 @@ import React, { useState, useEffect } from "react";
 import { Order, OrderStatus } from "./types";
 import { ORDERS } from "./data/orders";
 import Button from "@/src/components/common/Button";
-import CompleteModal from "@/src/components/features/modals/CompleteModal";
-import { Phone, MapPin, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  FaPhone,
+  FaMapMarkerAlt,
+  FaChevronDown,
+  FaChevronUp,
+} from "react-icons/fa";
 
 const OrderManagement: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -15,9 +19,6 @@ const OrderManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "All">("All");
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
-  // CompleteModal 상태 관리
-  const [completeOpen, setCompleteOpen] = useState(false);
-  const [completeMessage, setCompleteMessage] = useState("");
 
   useEffect(() => {
     setOrders(ORDERS);
@@ -57,8 +58,7 @@ const OrderManagement: React.FC = () => {
   const handleSave = () => {
     setOriginalOrders(orders);
     setChangedOrders(new Set());
-    setCompleteMessage("변경사항이 저장되었습니다.");
-    setCompleteOpen(true);
+    alert("변경사항이 저장되었습니다.");
   };
 
   const hasChanges = changedOrders.size > 0;
@@ -184,11 +184,11 @@ const OrderManagement: React.FC = () => {
                   {order.userName}
                 </div>
                 <div className="flex items-center text-sm text-gray-600 mt-1">
-                  <Phone className="mr-2" />
+                  <FaPhone className="mr-2" />
                   {order.phoneNumber}
                 </div>
                 <div className="flex items-center text-sm text-gray-600 mt-1">
-                  <MapPin className="mr-2" />
+                  <FaMapMarkerAlt className="mr-2" />
                   {order.address}
                 </div>
               </div>
@@ -215,9 +215,9 @@ const OrderManagement: React.FC = () => {
                   >
                     {isExpanded ? "접기" : "더보기"}
                     {isExpanded ? (
-                      <ChevronUp className="ml-1" />
+                      <FaChevronUp className="ml-1" />
                     ) : (
-                      <ChevronDown className="ml-1" />
+                      <FaChevronDown className="ml-1" />
                     )}
                   </button>
                 )}
@@ -248,12 +248,6 @@ const OrderManagement: React.FC = () => {
           );
         })}
       </div>
-      {/* 완료 모달 */}
-      <CompleteModal
-        open={completeOpen}
-        onClose={() => setCompleteOpen(false)}
-        message={completeMessage}
-      />
     </div>
   );
 };
