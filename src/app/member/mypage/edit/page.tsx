@@ -8,6 +8,10 @@ import Button from "@/src/components/common/Button";
 import { useUser } from "@/src/components/features/home/context/UserContext";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
 import { AuthService } from "@/src/lib/backend/services/authService";
+import {
+  validatePassword,
+  validatePasswordConfirm,
+} from "@/src/lib/utils/validation";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -66,10 +70,23 @@ export default function EditProfilePage() {
       return;
     }
 
-    // 새 비밀번호 입력 시 확인 비밀번호 체크
-    if (password && password !== confirmPassword) {
-      alert("새 비밀번호가 일치하지 않습니다.");
-      return;
+    // 새 비밀번호 입력 시 유효성 검사
+    if (password) {
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        alert(passwordValidation.message);
+        return;
+      }
+
+      // 비밀번호 확인 검사
+      const confirmValidation = validatePasswordConfirm(
+        password,
+        confirmPassword
+      );
+      if (!confirmValidation.isValid) {
+        alert(confirmValidation.message);
+        return;
+      }
     }
 
     try {
@@ -168,8 +185,8 @@ export default function EditProfilePage() {
                     </div>
                     <p className="mt-1 text-sm text-gray-500">
                       {isPasswordVerified
-                        ? "비밀번호가 확인되었습니다. 이제 정보를 수정할 수 있습니다."
-                        : "회원 정보 수정을 위해 현재 비밀번호 인증이 필요합니다."}
+                        ? "비밀번호가 확인되었습니다."
+                        : "회원 정보 수정을 위해 비밀번호 인증이 필요합니다."}
                     </p>
                   </td>
                 </tr>
@@ -196,7 +213,7 @@ export default function EditProfilePage() {
                   <td>
                     <Input
                       type="text"
-                      value="주소는 주소 관리 탭에서 변경 가능합니다"
+                      value="등록된 주소가 없습니다."
                       disabled
                       className="max-w-md bg-gray-100 text-gray-500"
                     />
