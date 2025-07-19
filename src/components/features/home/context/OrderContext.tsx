@@ -45,6 +45,7 @@ interface OrderContextType {
   loading: boolean;
   error: string | null;
   fetchOrders: () => Promise<void>;
+  fetchOrderDetail: (orderId: number) => Promise<Order>;
   createOrder: (orderData: CreateOrderData) => Promise<Order>;
   cancelOrder: (orderId: number) => Promise<void>;
   updateOrderAddress: (orderId: number, address: string) => Promise<void>;
@@ -103,6 +104,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // 사용자 로그인 상태에 따른 주문 목록 자동 조회
   useEffect(() => {
     if (user) {
       fetchOrders();
@@ -110,6 +112,51 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       setOrders([]);
     }
   }, [user, fetchOrders]);
+
+  // 회원 주문 상세 조회
+  const fetchOrderDetail = useCallback(
+    async (orderId: number): Promise<Order> => {
+      if (!user) {
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      setLoading(true);
+      setError(null);
+      try {
+        const orderDetail = await OrderService.getMemberOrderDetail(orderId);
+
+        // 서버 응답을 프론트엔드 Order 타입으로 변환
+        const convertedOrder: Order = {
+          id: orderDetail.orderId,
+          customerEmail: user?.email || "",
+          createdDate: orderDetail.orderDate,
+          state: orderDetail.status,
+          customerAddress: orderDetail.customerAddress,
+          orderItems: orderDetail.orderItems.map((item, idx) => ({
+            id: idx,
+            orderId: orderDetail.orderId,
+            productId: item.productId,
+            count: item.count,
+            price: item.price,
+            name: item.productName,
+          })),
+        };
+
+        return convertedOrder;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "주문 상세 정보를 불러오는데 실패했습니다.";
+        setError(errorMessage);
+        console.error("주문 상세 조회 실패:", err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user]
+  );
 
   // 주문 생성
   const createOrder = useCallback(
@@ -216,6 +263,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         loading,
         error,
         fetchOrders,
+        fetchOrderDetail,
         createOrder,
         cancelOrder,
         updateOrderAddress,
