@@ -7,6 +7,7 @@ import PasswordChangeSection from "@/src/components/features/mypage/PasswordChan
 import Button from "@/src/components/common/Button";
 import { useUser } from "@/src/components/features/home/context/UserContext";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
+import { AuthService } from "@/src/lib/backend/services/authService";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -17,6 +18,8 @@ export default function EditProfilePage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // 사용자 정보 초기화
   useEffect(() => {
@@ -29,11 +32,37 @@ export default function EditProfilePage() {
     }
   }, [user, fetchUserInfo]);
 
+  // 현재 비밀번호 검증
+  const verifyCurrentPassword = async () => {
+    if (!currentPassword.trim()) {
+      alert("현재 비밀번호를 입력해 주세요.");
+      return;
+    }
+
+    setIsVerifying(true);
+    try {
+      const isValid = await AuthService.verifyPassword(currentPassword);
+      if (isValid) {
+        setIsPasswordVerified(true);
+        alert("비밀번호가 확인되었습니다.");
+      } else {
+        setIsPasswordVerified(false);
+        alert("현재 비밀번호가 일치하지 않습니다.");
+      }
+    } catch (error) {
+      console.error("비밀번호 검증 실패:", error);
+      alert("비밀번호 검증에 실패했습니다.");
+      setIsPasswordVerified(false);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   // 회원 정보 수정 핸들러
   const handleSubmit = async () => {
-    // 현재 비밀번호 필수 체크
-    if (!currentPassword) {
-      alert("현재 비밀번호를 입력해 주세요.");
+    // 비밀번호 검증 체크
+    if (!isPasswordVerified) {
+      alert("현재 비밀번호 인증을 먼저 완료해 주세요.");
       return;
     }
 
@@ -45,7 +74,7 @@ export default function EditProfilePage() {
 
     try {
       // UserContext의 updateUserInfo 함수 호출
-      // 현재 비밀번호를 password 필드로 전달 (서버에서 검증용)
+      // 비밀번호 변경 시에는 새 비밀번호, 변경하지 않을 때는 현재 비밀번호
       await updateUserInfo({
         name,
         password: password || currentPassword, // 새 비밀번호가 있으면 새 비밀번호, 없으면 현재 비밀번호
@@ -102,15 +131,45 @@ export default function EditProfilePage() {
                     현재 비밀번호 <span className="text-red-500">*</span>
                   </th>
                   <td>
-                    <Input
-                      type="password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="현재 비밀번호를 입력해 주세요"
-                      className="max-w-md"
-                    />
+                    <div className="flex gap-2 items-end">
+                      <Input
+                        type="password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        placeholder="현재 비밀번호를 입력해 주세요"
+                        className="max-w-md"
+                        disabled={isPasswordVerified}
+                      />
+                      <Button
+                        text={
+                          isVerifying
+                            ? "확인 중..."
+                            : isPasswordVerified
+                            ? "확인됨"
+                            : "확인"
+                        }
+                        onClick={verifyCurrentPassword}
+                        disabled={
+                          isVerifying ||
+                          isPasswordVerified ||
+                          !currentPassword.trim()
+                        }
+                        bgColor={
+                          isPasswordVerified ? "bg-green-600" : "bg-amber-600"
+                        }
+                        hoverColor={
+                          isPasswordVerified
+                            ? "hover:bg-green-700"
+                            : "hover:bg-amber-700"
+                        }
+                        fontColor="text-white"
+                        className="px-4 py-2 text-sm"
+                      />
+                    </div>
                     <p className="mt-1 text-sm text-gray-500">
-                      회원 정보 수정을 위해 현재 비밀번호가 필요합니다.
+                      {isPasswordVerified
+                        ? "비밀번호가 확인되었습니다. 이제 정보를 수정할 수 있습니다."
+                        : "회원 정보 수정을 위해 현재 비밀번호 인증이 필요합니다."}
                     </p>
                   </td>
                 </tr>

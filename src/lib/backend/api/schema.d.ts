@@ -4,58 +4,6 @@
  */
 
 export interface paths {
-    "/api/adm/products/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** 상품 수정 */
-        put: operations["updateProduct"];
-        post?: never;
-        /** 상품 삭제 */
-        delete: operations["deleteProduct"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/adm/products": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 상품 생성 */
-        post: operations["createProduct"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/products": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 상품 목록 조회 */
-        get: operations["getProducts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/orders/{orderId}/address": {
         parameters: {
             query?: never;
@@ -138,6 +86,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/adm/orders/{orderId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 주문 상태 변경
+         * @description 주문 상태를 변경합니다. 예: ORDERED, SHIPPING, COMPLETED, CANCELED
+         */
+        put: operations["updateOrderStatus"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/addresses/{addressId}": {
         parameters: {
             query?: never;
@@ -184,6 +152,23 @@ export interface paths {
         put?: never;
         /** 주문 생성 */
         post: operations["createOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/members/verify-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 회원 비밀번호 검증 */
+        post: operations["verifyPassword"];
         delete?: never;
         options?: never;
         head?: never;
@@ -428,11 +413,11 @@ export interface components {
         OrderUpdateAddressReqBody: {
             newAddress: string;
         };
-        RsDataVoid: {
+        RsDataString: {
             /** Format: int32 */
             code?: number;
             message?: string;
-            data?: Record<string, never>;
+            data?: string;
         };
         MemberUpdateDto: {
             email: string;
@@ -493,6 +478,20 @@ export interface components {
             message?: string;
             data?: components["schemas"]["ProductWithOrderable"];
         };
+        OrderStatusReqBody: {
+            status: string;
+        };
+        OrderStatusResBody: {
+            /** Format: int64 */
+            id?: number;
+            status?: string;
+        };
+        RsDataOrderStatusResBody: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["OrderStatusResBody"];
+        };
         AddressSubmitReqBody: {
             content: string;
         };
@@ -513,6 +512,12 @@ export interface components {
             code?: number;
             message?: string;
             data?: components["schemas"]["AddressResBody"];
+        };
+        RsDataVoid: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: Record<string, never>;
         };
         OrderCreateReqBody: {
             customerAddress: string;
@@ -543,7 +548,7 @@ export interface components {
              * @example ORDERED
              * @enum {string}
              */
-            state: "ORDERED" | "PAID" | "SHIPPING" | "COMPLETED" | "CANCELED" | "ORDERED" | "PAID" | "SHIPPING" | "COMPLETED" | "CANCELED";
+            state: "ORDERED" | "SHIPPING" | "COMPLETED" | "CANCELED" | "ORDERED" | "PAID" | "SHIPPING" | "COMPLETED" | "CANCELED";
             /** @description 주문 주소 */
             customerAddress: string;
             /** @description 주문 상세 목록 */
@@ -582,6 +587,9 @@ export interface components {
             code?: number;
             message?: string;
             data?: components["schemas"]["OrderDto"];
+        };
+        MemberPasswordVerifyReqBody: {
+            password: string;
         };
         MemberLoginReqBody: {
             email: string;
@@ -731,50 +739,6 @@ export interface components {
             message?: string;
             data?: components["schemas"]["AddressListResBody"][];
         };
-        ProductDto: {
-            /** Format: int64 */
-            id: number;
-            /** Format: date-time */
-            createdDate: string;
-            /** Format: date-time */
-            modifiedDate: string;
-            productName: string;
-            /** Format: int32 */
-            price: number;
-            imageUrl: string | null;
-            category: string;
-            description: string;
-            orderable: boolean;
-        };
-        ProductListDto: {
-            items: components["schemas"]["ProductDto"][];
-        };
-        RsDataProductListDto: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            data?: components["schemas"]["ProductListDto"];
-        };
-        RsDataProductDto: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            data?: components["schemas"]["ProductDto"];
-        };
-        ProductCreateReqBody: {
-            productName: string;
-            price: number;
-            category: string;
-            description: string;
-            orderable: boolean;
-        };
-        ProductUpdateReqBody: {
-            productName?: string;
-            price?: number;
-            category?: string;
-            description?: string;
-            orderable?: boolean;
-        };
     };
     responses: never;
     parameters: never;
@@ -784,101 +748,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    updateProduct: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["ProductUpdateReqBody"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataProductDto"];
-                };
-            };
-        };
-    };
-    deleteProduct: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataVoid"];
-                };
-            };
-        };
-    };
-    createProduct: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["ProductCreateReqBody"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataProductDto"];
-                };
-            };
-        };
-    };
-    getProducts: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataProductListDto"];
-                };
-            };
-        };
-    };
     updateOrderAddress: {
         parameters: {
             query?: never;
@@ -900,7 +769,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataVoid"];
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataString"];
                 };
             };
         };
@@ -1027,6 +896,32 @@ export interface operations {
             };
         };
     };
+    updateOrderStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderStatusReqBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataOrderStatusResBody"];
+                };
+            };
+        };
+    };
     updateAddress: {
         parameters: {
             query?: never;
@@ -1117,6 +1012,30 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["RsDataOrderDto"];
+                };
+            };
+        };
+    };
+    verifyPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberPasswordVerifyReqBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataVoid"];
                 };
             };
         };
@@ -1387,7 +1306,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataVoid"];
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataOrderDto"];
                 };
             };
         };

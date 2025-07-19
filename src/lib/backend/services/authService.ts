@@ -5,6 +5,7 @@ type MemberJoinReqBody = components["schemas"]["MemberJoinReqBody"];
 type MemberLoginReqBody = components["schemas"]["MemberLoginReqBody"];
 type MemberUpdateDto = components["schemas"]["MemberUpdateDto"];
 type MemberWithAuthDto = components["schemas"]["MemberWithAuthDto"];
+type MemberPasswordVerifyReqBody = components["schemas"]["MemberPasswordVerifyReqBody"];
 
 export interface UserInfo {
   id: number;
@@ -130,5 +131,20 @@ export class AuthService {
     if (error) {
       throw new Error("회원 탈퇴에 실패했습니다.");
     }
+  }
+
+  // 비밀번호 검증
+  static async verifyPassword(password: string): Promise<boolean> {
+    const { data: response, error } = await client.POST("/api/members/verify-password", {
+      body: { password },
+    });
+
+    if (error) {
+      // 비밀번호가 틀린 경우
+      return false;
+    }
+
+    // 성공적으로 검증된 경우
+    return true;
   }
 } 
