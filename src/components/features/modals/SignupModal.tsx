@@ -7,6 +7,7 @@ import { Input } from "@/src/components/common/Input";
 import { PrimaryButton } from "@/src/components/common/PrimaryButton";
 import { useUser } from "@/src/components/features/home/context/UserContext";
 import { PasswordInput } from "@/src/components/common/PasswordInput";
+import CompleteModal from "@/src/components/features/modals/CompleteModal";
 import {
   validatePassword,
   validatePasswordConfirm,
@@ -31,6 +32,9 @@ export function SignupModal({
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  // CompleteModal 상태 관리
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeMessage, setCompleteMessage] = useState("");
 
   // 비밀번호 유효성 검사
   useEffect(() => {
@@ -59,7 +63,8 @@ export function SignupModal({
     // 비밀번호 유효성 검사
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.isValid) {
-      alert(passwordValidation.message);
+      setCompleteMessage(passwordValidation.message);
+      setCompleteOpen(true);
       return;
     }
 
@@ -69,7 +74,8 @@ export function SignupModal({
       confirmPassword
     );
     if (!confirmValidation.isValid) {
-      alert(confirmValidation.message);
+      setCompleteMessage(confirmValidation.message);
+      setCompleteOpen(true);
       return;
     }
 
@@ -78,12 +84,13 @@ export function SignupModal({
       // UserContext의 signup 함수만 호출
       await signup(name, email, password);
       // 성공 시 회원가입 완료 메시지 표시 후 로그인 페이지로 이동
-      alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.");
-      router.push("/member/login");
+      setCompleteMessage("회원가입이 완료되었습니다.");
+      setCompleteOpen(true);
     } catch (error) {
       // 실패 시 에러 처리
       console.error("회원가입 실패:", error);
-      alert("회원가입에 실패했습니다. 다시 시도해주세요.");
+      setCompleteMessage("회원가입에 실패했습니다. 다시 시도해주세요.");
+      setCompleteOpen(true);
     } finally {
       setIsLoading(false);
     }
@@ -177,6 +184,18 @@ export function SignupModal({
           </button>
         </div>
       </ModalContent>
+      {/* 완료 모달 */}
+      <CompleteModal
+        open={completeOpen}
+        onClose={() => {
+          setCompleteOpen(false);
+          if (completeMessage === "회원가입이 완료되었습니다.") {
+            onClose(); // 회원가입 모달 닫기
+            router.replace("/member/login");
+          }
+        }}
+        message={completeMessage}
+      />
     </Modal>
   );
 }

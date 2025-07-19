@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Order, OrderStatus } from "./types";
 import { ORDERS } from "./data/orders";
 import Button from "@/src/components/common/Button";
-import { FaPhone, FaMapMarkerAlt, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import CompleteModal from "@/src/components/features/modals/CompleteModal";
+import { Phone, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 
 const OrderManagement: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -14,6 +15,9 @@ const OrderManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "All">("All");
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  // CompleteModal 상태 관리
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeMessage, setCompleteMessage] = useState("");
 
   useEffect(() => {
     setOrders(ORDERS);
@@ -33,7 +37,9 @@ const OrderManagement: React.FC = () => {
     }
 
     if (statusFilter !== "All") {
-      updatedOrders = updatedOrders.filter((order) => order.status === statusFilter);
+      updatedOrders = updatedOrders.filter(
+        (order) => order.status === statusFilter
+      );
     }
 
     setFilteredOrders(updatedOrders);
@@ -51,7 +57,8 @@ const OrderManagement: React.FC = () => {
   const handleSave = () => {
     setOriginalOrders(orders);
     setChangedOrders(new Set());
-    alert("변경사항이 저장되었습니다.");
+    setCompleteMessage("변경사항이 저장되었습니다.");
+    setCompleteOpen(true);
   };
 
   const hasChanges = changedOrders.size > 0;
@@ -101,7 +108,9 @@ const OrderManagement: React.FC = () => {
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 min-h-screen">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-800">주문 관리</h1>
-        <p className="text-gray-500 mt-2">주문 내역을 확인하고 상태를 변경하세요.</p>
+        <p className="text-gray-500 mt-2">
+          주문 내역을 확인하고 상태를 변경하세요.
+        </p>
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -116,7 +125,9 @@ const OrderManagement: React.FC = () => {
           <select
             className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "All")}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as OrderStatus | "All")
+            }
           >
             {statusOptions.map((status) => (
               <option key={status} value={status}>
@@ -139,28 +150,45 @@ const OrderManagement: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredOrders.map((order) => {
           const isExpanded = expandedOrders.has(order.id);
-          const itemsToShow = isExpanded ? order.items : order.items.slice(0, 2);
+          const itemsToShow = isExpanded
+            ? order.items
+            : order.items.slice(0, 2);
 
           return (
-            <div key={order.id} className={`bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-xl flex flex-col ${changedOrders.has(order.id) ? "ring-2 ring-yellow-400" : ""}`}>
+            <div
+              key={order.id}
+              className={`bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-xl flex flex-col ${
+                changedOrders.has(order.id) ? "ring-2 ring-yellow-400" : ""
+              }`}
+            >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <div className="text-lg font-bold text-gray-800">#{order.id}</div>
-                  <div className="text-sm text-gray-500">{new Date().toLocaleDateString()}</div>
+                  <div className="text-lg font-bold text-gray-800">
+                    #{order.id}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {new Date().toLocaleDateString()}
+                  </div>
                 </div>
-                <div className={`text-xs font-bold py-1 px-3 rounded-full ${getStatusBadgeColor(order.status)}`}>
+                <div
+                  className={`text-xs font-bold py-1 px-3 rounded-full ${getStatusBadgeColor(
+                    order.status
+                  )}`}
+                >
                   {order.status}
                 </div>
               </div>
 
               <div className="mb-4">
-                <div className="text-lg font-semibold text-gray-800">{order.userName}</div>
+                <div className="text-lg font-semibold text-gray-800">
+                  {order.userName}
+                </div>
                 <div className="flex items-center text-sm text-gray-600 mt-1">
-                  <FaPhone className="mr-2" />
+                  <Phone className="mr-2" />
                   {order.phoneNumber}
                 </div>
                 <div className="flex items-center text-sm text-gray-600 mt-1">
-                  <FaMapMarkerAlt className="mr-2" />
+                  <MapPin className="mr-2" />
                   {order.address}
                 </div>
               </div>
@@ -170,15 +198,27 @@ const OrderManagement: React.FC = () => {
                 <ul className="space-y-2">
                   {itemsToShow.map((item, index) => (
                     <li key={index} className="flex justify-between text-sm">
-                      <span>{item.product.productName} x {item.quantity}</span>
-                      <span>{(item.product.price * item.quantity).toLocaleString()}원</span>
+                      <span>
+                        {item.product.productName} x {item.quantity}
+                      </span>
+                      <span>
+                        {(item.product.price * item.quantity).toLocaleString()}
+                        원
+                      </span>
                     </li>
                   ))}
                 </ul>
                 {order.items.length > 2 && (
-                  <button onClick={() => toggleExpandOrder(order.id)} className="text-sm text-blue-500 hover:underline mt-2 flex items-center">
+                  <button
+                    onClick={() => toggleExpandOrder(order.id)}
+                    className="text-sm text-blue-500 hover:underline mt-2 flex items-center"
+                  >
                     {isExpanded ? "접기" : "더보기"}
-                    {isExpanded ? <FaChevronUp className="ml-1" /> : <FaChevronDown className="ml-1" />}
+                    {isExpanded ? (
+                      <ChevronUp className="ml-1" />
+                    ) : (
+                      <ChevronDown className="ml-1" />
+                    )}
                   </button>
                 )}
               </div>
@@ -186,11 +226,15 @@ const OrderManagement: React.FC = () => {
               <div className="border-t border-gray-200 pt-4 mt-auto">
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-bold text-gray-800">총 가격</span>
-                  <span className="font-bold text-xl text-blue-600">{order.totalPrice.toLocaleString()}원</span>
+                  <span className="font-bold text-xl text-blue-600">
+                    {order.totalPrice.toLocaleString()}원
+                  </span>
                 </div>
                 <select
                   value={order.status}
-                  onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
+                  onChange={(e) =>
+                    handleStatusChange(order.id, e.target.value as OrderStatus)
+                  }
                   className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {statusOptions.slice(1).map((status) => (
@@ -204,6 +248,12 @@ const OrderManagement: React.FC = () => {
           );
         })}
       </div>
+      {/* 완료 모달 */}
+      <CompleteModal
+        open={completeOpen}
+        onClose={() => setCompleteOpen(false)}
+        message={completeMessage}
+      />
     </div>
   );
 };

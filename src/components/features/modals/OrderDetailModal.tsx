@@ -6,6 +6,7 @@ import Button from "@/src/components/common/Button";
 import { useState } from "react";
 import AddressSelectModal from "@/src/components/features/modals/AddressSelectModal";
 import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
+import CompleteModal from "@/src/components/features/modals/CompleteModal";
 import {
   useOrders,
   type Order,
@@ -33,6 +34,9 @@ export default function OrderDetailModal({
     message: "",
     onConfirm: () => {},
   });
+  // CompleteModal 상태 관리
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeMessage, setCompleteMessage] = useState("");
 
   const handleCancelOrder = () => {
     setConfirmModal({
@@ -42,9 +46,12 @@ export default function OrderDetailModal({
         try {
           await cancelOrder(order.id);
           setConfirmModal({ ...confirmModal, open: false });
-          onClose();
+          setCompleteMessage("주문이 취소되었습니다.");
+          setCompleteOpen(true);
         } catch (error) {
           console.error("주문 취소 실패:", error);
+          setCompleteMessage("주문 취소에 실패했습니다. 다시 시도해 주세요.");
+          setCompleteOpen(true);
         }
       },
     });
@@ -144,11 +151,15 @@ export default function OrderDetailModal({
                   onEditSave={async (edited: string) => {
                     await updateOrderAddress(order.id, edited);
                     setSelectedAddress(edited);
+                    setCompleteMessage("배송지가 변경되었습니다.");
+                    setCompleteOpen(true);
                   }}
                   onSelect={async (address: string) => {
                     await updateOrderAddress(order.id, address);
                     setSelectedAddress(address);
                     setIsAddressModalOpen(false);
+                    setCompleteMessage("배송지가 변경되었습니다.");
+                    setCompleteOpen(true);
                   }}
                 />
               </div>
@@ -191,6 +202,17 @@ export default function OrderDetailModal({
           message={confirmModal.message}
         />
       )}
+      {/* 완료 모달 */}
+      <CompleteModal
+        open={completeOpen}
+        onClose={() => {
+          setCompleteOpen(false);
+          if (completeMessage === "주문이 취소되었습니다.") {
+            onClose();
+          }
+        }}
+        message={completeMessage}
+      />
     </Modal>
   );
 }

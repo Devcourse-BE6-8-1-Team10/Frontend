@@ -7,6 +7,7 @@ import PasswordChangeSection from "@/src/components/features/mypage/PasswordChan
 import Button from "@/src/components/common/Button";
 import { useUser } from "@/src/components/features/home/context/UserContext";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
+import CompleteModal from "@/src/components/features/modals/CompleteModal";
 import { AuthService } from "@/src/lib/backend/services/authService";
 import {
   validatePassword,
@@ -24,6 +25,9 @@ export default function EditProfilePage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  // CompleteModal 상태 관리
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeMessage, setCompleteMessage] = useState("");
 
   // 사용자 정보 초기화
   useEffect(() => {
@@ -39,7 +43,8 @@ export default function EditProfilePage() {
   // 현재 비밀번호 검증
   const verifyCurrentPassword = async () => {
     if (!currentPassword.trim()) {
-      alert("현재 비밀번호를 입력해 주세요.");
+      setCompleteMessage("현재 비밀번호를 입력해 주세요.");
+      setCompleteOpen(true);
       return;
     }
 
@@ -48,14 +53,17 @@ export default function EditProfilePage() {
       const isValid = await AuthService.verifyPassword(currentPassword);
       if (isValid) {
         setIsPasswordVerified(true);
-        alert("비밀번호가 확인되었습니다.");
+        setCompleteMessage("비밀번호가 확인되었습니다.");
+        setCompleteOpen(true);
       } else {
         setIsPasswordVerified(false);
-        alert("현재 비밀번호가 일치하지 않습니다.");
+        setCompleteMessage("현재 비밀번호가 일치하지 않습니다.");
+        setCompleteOpen(true);
       }
     } catch (error) {
       console.error("비밀번호 검증 실패:", error);
-      alert("비밀번호 검증에 실패했습니다.");
+      setCompleteMessage("비밀번호 검증에 실패했습니다.");
+      setCompleteOpen(true);
       setIsPasswordVerified(false);
     } finally {
       setIsVerifying(false);
@@ -66,7 +74,8 @@ export default function EditProfilePage() {
   const handleSubmit = async () => {
     // 비밀번호 검증 체크
     if (!isPasswordVerified) {
-      alert("현재 비밀번호 인증을 먼저 완료해 주세요.");
+      setCompleteMessage("현재 비밀번호 인증을 먼저 완료해 주세요.");
+      setCompleteOpen(true);
       return;
     }
 
@@ -74,7 +83,8 @@ export default function EditProfilePage() {
     if (password) {
       const passwordValidation = validatePassword(password);
       if (!passwordValidation.isValid) {
-        alert(passwordValidation.message);
+        setCompleteMessage(passwordValidation.message);
+        setCompleteOpen(true);
         return;
       }
 
@@ -84,7 +94,8 @@ export default function EditProfilePage() {
         confirmPassword
       );
       if (!confirmValidation.isValid) {
-        alert(confirmValidation.message);
+        setCompleteMessage(confirmValidation.message);
+        setCompleteOpen(true);
         return;
       }
     }
@@ -96,11 +107,12 @@ export default function EditProfilePage() {
         name,
         password: password || currentPassword, // 새 비밀번호가 있으면 새 비밀번호, 없으면 현재 비밀번호
       });
-      alert("회원 정보가 수정되었습니다.");
-      router.back();
+      setCompleteMessage("회원 정보가 수정되었습니다.");
+      setCompleteOpen(true);
     } catch (error) {
       console.error("회원 정보 수정 오류:", error);
-      alert("회원 정보 수정에 실패했습니다. 다시 시도해 주세요.");
+      setCompleteMessage("회원 정보 수정에 실패했습니다. 다시 시도해 주세요.");
+      setCompleteOpen(true);
     }
   };
 
@@ -257,6 +269,17 @@ export default function EditProfilePage() {
             </table>
           </section>
         )}
+        {/* 완료 모달 */}
+        <CompleteModal
+          open={completeOpen}
+          onClose={() => {
+            setCompleteOpen(false);
+            if (completeMessage === "회원 정보가 수정되었습니다.") {
+              router.back();
+            }
+          }}
+          message={completeMessage}
+        />
       </main>
     </AuthGuard>
   );
