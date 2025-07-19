@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "@/src/components/common/Button";
 import { Search } from "lucide-react";
 import OrderDetailModal from "../modals/OrderDetailModal";
@@ -39,7 +39,11 @@ function formatOrderStatus(status: string) {
 }
 
 export default function OrdersPanel() {
-  const { orders, fetchOrderDetail } = useOrders();
+  const { orders, loading, error, fetchOrderDetail } = useOrders();
+
+  console.log("OrdersPanel - 주문 내역:", orders.length, "개");
+  console.log("OrdersPanel - 로딩 상태:", loading);
+  console.log("OrdersPanel - 에러:", error);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
