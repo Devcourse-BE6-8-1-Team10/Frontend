@@ -34,15 +34,6 @@ export function AddressProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const [addresses, setAddresses] = useState<Address[]>([]);
 
-  // user 정보가 있을 때만 주소 목록 fetch
-  useEffect(() => {
-    if (user) {
-      fetchAddresses();
-    } else {
-      setAddresses([]); // 로그아웃/탈퇴 시 주소 초기화
-    }
-  }, [user]);
-
   // 주소 목록 조회
   const fetchAddresses = useCallback(async () => {
     try {
@@ -53,6 +44,15 @@ export function AddressProvider({ children }: { children: ReactNode }) {
       setAddresses([]);
     }
   }, []);
+
+  // user 정보가 있을 때만 주소 목록 fetch
+  useEffect(() => {
+    if (user) {
+      fetchAddresses();
+    } else {
+      setAddresses([]); // 로그아웃/탈퇴 시 주소 초기화
+    }
+  }, [user, fetchAddresses]);
 
   // 주소 등록
   const add = useCallback(async (address: string) => {
