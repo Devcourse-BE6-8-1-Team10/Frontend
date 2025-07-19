@@ -5,7 +5,9 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-import type { Order as AdminOrder } from "@/src/services/orderService";
+import type { components } from "@/src/lib/backend/api/schema.d.ts";
+type AdminOrder = components["schemas"]["OrderDtoWithName"];
+type OrderStatus = AdminOrder["state"];
 import { AdminService } from "@/src/services/adminService";
 
 interface AdminOrderContextType {
@@ -13,6 +15,7 @@ interface AdminOrderContextType {
   loading: boolean;
   error: string | null;
   fetchAdminOrders: () => Promise<void>;
+  updateOrderStatus: (orderId: number, newStatus: OrderStatus) => Promise<void>;
 }
 
 const AdminOrderContext = createContext<AdminOrderContextType | undefined>(
@@ -33,7 +36,10 @@ export const AdminOrderProvider = ({ children }: { children: ReactNode }) => {
       setOrders(
         adminOrders.map((order) => ({
           ...order,
-          orderItems: order.orderItems ?? [],
+          orderItems: (order.orderItems ?? []).map((item) => ({
+            ...item,
+            productName: item.productName ?? "",
+          })),
         }))
       );
     } catch (err) {
@@ -49,9 +55,29 @@ export const AdminOrderProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  // 관리자 주문 상태 변경
+  const updateOrderStatus = useCallback(
+    async (orderId: number, newStatus: OrderStatus) => {
+      setLoading(true);
+      setError(null);
+      try {
+        await AdminService.updateOrderStatus(orderId, newStatus);
+        await fetchAdminOrders(); // 상태 변경 후 목록 새로고침
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "주문 상태 변경에 실패했습니다.";
+        setError(errorMessage);
+        console.error("주문 상태 변경 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchAdminOrders]
+  );
+
   return (
     <AdminOrderContext.Provider
-      value={{ orders, loading, error, fetchAdminOrders }}
+      value={{ orders, loading, error, fetchAdminOrders, updateOrderStatus }}
     >
       {children}
     </AdminOrderContext.Provider>

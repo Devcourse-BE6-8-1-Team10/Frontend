@@ -21,23 +21,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/adm/orders/{orderId}/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** 주문 상태 변경 */
-        put: operations["updateOrderStatus"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/members/info": {
         parameters: {
             query?: never;
@@ -588,6 +571,8 @@ export interface components {
              * @description 상품 ID
              */
             productId: number;
+            /** @description 상품명 */
+            productName: string;
             /**
              * Format: int32
              * @description 수량
@@ -707,11 +692,38 @@ export interface components {
             /** Format: int32 */
             price?: number;
         };
-        RsDataListOrderDto: {
+        /** @description 주문 정보 DTO */
+        OrderDtoWithName: {
+            /**
+             * Format: int64
+             * @description 주문 ID
+             */
+            id: number;
+            /** @description 주문자 이메일 */
+            customerEmail: string;
+            /** @description 주문자 이름 */
+            customerName: string;
+            /**
+             * Format: date-time
+             * @description 주문 날짜
+             */
+            createdDate: string;
+            /**
+             * @description 처리 상태
+             * @example ORDERED
+             * @enum {string}
+             */
+            state: "ORDERED" | "SHIPPING" | "COMPLETED" | "CANCELED" | "ORDERED" | "PAID" | "SHIPPING" | "COMPLETED" | "CANCELED";
+            /** @description 주문 주소 */
+            customerAddress: string;
+            /** @description 주문 상세 목록 */
+            orderItems: components["schemas"]["OrderItemDto"][];
+        };
+        RsDataListOrderDtoWithName: {
             /** Format: int32 */
             code?: number;
             message?: string;
-            data?: components["schemas"]["OrderDto"][];
+            data?: components["schemas"]["OrderDtoWithName"][];
         };
         /** @description 주문 상세 정보 DTO */
         OrderDtoWithSpecific: {
@@ -722,6 +734,8 @@ export interface components {
             id?: number;
             /** @description 주문자 이메일 */
             customerEmail?: string;
+            /** @description 주문자 이름 */
+            customerName: string;
             /** @description 주문 배송 주소 */
             customerAddress?: string;
             /**
@@ -787,34 +801,6 @@ export interface operations {
                 };
                 content: {
                     "application/json;charset=UTF-8": components["schemas"]["RsDataString"];
-                };
-            };
-        };
-    };
-    updateOrderStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orderId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    status: components["schemas"]["OrderDto"]["state"];
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataVoid"];
                 };
             };
         };
@@ -1307,7 +1293,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataListOrderDto"];
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataListOrderDtoWithName"];
                 };
             };
         };
