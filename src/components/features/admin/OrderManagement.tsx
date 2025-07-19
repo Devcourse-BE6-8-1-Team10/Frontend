@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Order, OrderStatus } from "@/src/types";
+import type { Order as AdminOrder } from "@/src/services/orderService";
+import type { OrderStatus } from "@/src/types/order";
 import Button from "@/src/components/common/Button";
 import {
   FaPhone,
@@ -9,14 +10,13 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
-import { useOrders } from "@/src/store/order";
+import { useAdminOrders } from "@/src/store/order/AdminOrderContext";
 import { OrderService } from "@/src/services/orderService";
 
 const OrderManagement: React.FC = () => {
-  // fetchAdminOrders를 사용하여 관리자 주문 목록을 불러온다
-  const { orders, fetchAdminOrders, loading, error } = useOrders();
+  const { orders, fetchAdminOrders, loading, error } = useAdminOrders();
   const [changedOrders, setChangedOrders] = useState<Set<number>>(new Set());
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<AdminOrder[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "All">("All");
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
@@ -165,8 +165,8 @@ const OrderManagement: React.FC = () => {
         {filteredOrders.map((order) => {
           const isExpanded = expandedOrders.has(order.id);
           const itemsToShow = isExpanded
-            ? order.orderItems
-            : order.orderItems.slice(0, 2);
+            ? order.orderItems ?? []
+            : (order.orderItems ?? []).slice(0, 2);
 
           return (
             <div
@@ -210,8 +210,7 @@ const OrderManagement: React.FC = () => {
                   {itemsToShow.map((item, index) => (
                     <li key={index} className="flex justify-between text-sm">
                       <span>
-                        {item.name || `상품 ID: ${item.productId}`} x{" "}
-                        {item.count}
+                        {`상품 ID: ${item.productId}`} x {item.count}
                       </span>
                       <span>
                         {(item.price * item.count).toLocaleString()}원
@@ -219,7 +218,7 @@ const OrderManagement: React.FC = () => {
                     </li>
                   ))}
                 </ul>
-                {order.orderItems.length > 2 && (
+                {order.orderItems?.length > 2 && (
                   <button
                     onClick={() => toggleExpandOrder(order.id)}
                     className="text-sm text-blue-500 hover:underline mt-2 flex items-center"

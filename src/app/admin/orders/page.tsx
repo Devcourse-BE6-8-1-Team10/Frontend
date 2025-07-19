@@ -3,6 +3,7 @@
 import OrderManagement from "@/src/components/features/admin/OrderManagement";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
 import { useUser } from "@/src/store/auth";
+import { AdminOrderProvider } from "@/src/store/order/AdminOrderContext";
 
 const AdminOrderPage: React.FC = () => {
   const { user } = useUser();
@@ -10,7 +11,9 @@ const AdminOrderPage: React.FC = () => {
   return (
     <AuthGuard requireAuth={true}>
       {user?.isAdmin ? (
-        <OrderManagement />
+        <AdminOrderProvider>
+          <OrderManagement />
+        </AdminOrderProvider>
       ) : (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
