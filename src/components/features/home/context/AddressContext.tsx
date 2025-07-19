@@ -63,7 +63,7 @@ export function AddressProvider({ children }: { children: ReactNode }) {
         {
           id: newAddress.id,
           content: newAddress.content,
-          isDefault: prev.length === 0,
+          isDefault: false,
         },
       ]);
     } catch (error) {
@@ -92,13 +92,7 @@ export function AddressProvider({ children }: { children: ReactNode }) {
   const remove = useCallback(async (id: number) => {
     try {
       await AddressService.deleteAddress(id);
-      setAddresses((prev) => {
-        const updated = prev.filter((a) => a.id !== id);
-        const hasDefault = updated.some((a) => a.isDefault);
-        return hasDefault
-          ? updated
-          : updated.map((a, i) => (i === 0 ? { ...a, isDefault: true } : a));
-      });
+      setAddresses((prev) => prev.filter((a) => a.id !== id));
     } catch (error) {
       console.error("주소 삭제 실패:", error);
       throw error;
