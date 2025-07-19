@@ -39,6 +39,88 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/adm/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 상품 수정
+         * @description 수정할때도 json형식+file 형태의 값을 입력해야함
+         *     시나리오1: 이미지 수정 없음
+         *     시나리오2: 새 이미지 업로드
+         *
+         */
+        put: operations["modifywithImage"];
+        post?: never;
+        /**
+         * 상품 삭제
+         * @description 일단 상품 삭제
+         */
+        delete: operations["delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/adm/products/{id}/orderable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 주문 가능 불가능 설정
+         * @description 상품의 주문 가능 여부를 true 또는 false로 변경, 데이터는 orderable만 보냅니다
+         */
+        put: operations["isOrderable"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/addresses/{addressId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** 주소 수정 */
+        put: operations["updateAddress"];
+        post?: never;
+        /** 주소 삭제 */
+        delete: operations["deleteAddress"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/addresses/{addressId}/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** 기본 주소 설정 */
+        put: operations["setDefaultAddress"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/orders": {
         parameters: {
             query?: never;
@@ -90,6 +172,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/adm/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 상품 생성
+         * @description json형식 데이터 + file형식으로 상품을 생성합니다
+         */
+        post: operations["createWithImage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/addresses": {
         parameters: {
             query?: never;
@@ -108,15 +210,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/orders/{orderId}/detail": {
+    "/api/products": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** 주문 상세 조회 */
-        get: operations["getOrderDetail"];
+        /**
+         * 상품 목록 조회
+         * @description 페이징 처리
+         */
+        get: operations["getItems"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 상품 단건 조회
+         * @description 상품 ID기반 상품의 상세 정보 조회
+         */
+        get: operations["getItem"];
         put?: never;
         post?: never;
         delete?: never;
@@ -176,6 +301,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/adm/orders/{orderId}/detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 주문 상세 조회 */
+        get: operations["getOrderDetail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/orders/{orderId}": {
         parameters: {
             query?: never;
@@ -227,23 +369,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/addresses/{addressId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** 주소 삭제 */
-        delete: operations["deleteAddress"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -274,6 +399,68 @@ export interface components {
             code?: number;
             message?: string;
             data?: components["schemas"]["MemberWithAuthDto"];
+        };
+        ModifyReqBody: {
+            productName: string;
+            /** Format: int32 */
+            price?: number;
+            category: string;
+            description: string;
+            orderable?: boolean;
+        };
+        ProductDto: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: date-time */
+            createdDate?: string;
+            /** Format: date-time */
+            modifiedDate?: string;
+            productName?: string;
+            /** Format: int32 */
+            price?: number;
+            imageUrl?: string;
+            category?: string;
+            description?: string;
+            orderable?: boolean;
+        };
+        RsDataProductDto: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["ProductDto"];
+        };
+        OrderReqBody: {
+            orderable?: boolean;
+        };
+        ProductWithOrderable: {
+            orderable?: boolean;
+        };
+        RsDataProductWithOrderable: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["ProductWithOrderable"];
+        };
+        AddressSubmitReqBody: {
+            content: string;
+        };
+        AddressResBody: {
+            /** Format: int64 */
+            id?: number;
+            content?: string;
+            member?: components["schemas"]["MemberDto"];
+        };
+        MemberDto: {
+            /** Format: int64 */
+            id: number;
+            email: string;
+            name: string;
+        };
+        RsDataAddressResBody: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["AddressResBody"];
         };
         OrderCreateReqBody: {
             customerAddress: string;
@@ -364,63 +551,36 @@ export interface components {
             password: string;
             name: string;
         };
-        MemberDto: {
-            /** Format: int64 */
-            id: number;
-            email: string;
-            name: string;
-        };
         RsDataMemberDto: {
             /** Format: int32 */
             code?: number;
             message?: string;
             data?: components["schemas"]["MemberDto"];
         };
-        AddressSubmitReqBody: {
-            content: string;
+        GCSReqBody: {
+            productName: string;
+            /** Format: int32 */
+            price?: number;
+            category: string;
+            description: string;
+            orderable?: boolean;
         };
-        AddressSubmitResBody: {
-            /** Format: int64 */
-            id?: number;
-            content?: string;
-            member?: components["schemas"]["MemberDto"];
+        PageDto: {
+            items?: components["schemas"]["ProductDto"][];
+            /** Format: int32 */
+            totalPages?: number;
+            /** Format: int32 */
+            totalItems?: number;
+            /** Format: int32 */
+            currentPageNo?: number;
+            /** Format: int32 */
+            pageSize?: number;
         };
-        RsDataAddressSubmitResBody: {
+        RsDataPageDto: {
             /** Format: int32 */
             code?: number;
             message?: string;
-            data?: components["schemas"]["AddressSubmitResBody"];
-        };
-        /** @description 주문 상세 정보 DTO */
-        OrderDtoWithSpecific: {
-            /**
-             * Format: int64
-             * @description 주문 ID
-             */
-            id?: number;
-            /** @description 주문자 이메일 */
-            customerEmail?: string;
-            /** @description 주문 배송 주소 */
-            customerAddress?: string;
-            /**
-             * @description 주문 상태 코드
-             * @example ORDERED
-             * @enum {string}
-             */
-            state?: "ORDERED" | "PAID" | "SHIPPING" | "COMPLETED" | "CANCELED";
-            /**
-             * Format: date-time
-             * @description 주문 생성일
-             */
-            createdDate?: string;
-            /** @description 주문에 포함된 상품 목록 */
-            orderItems?: components["schemas"]["OrderItemDto"][];
-        };
-        RsDataOrderDtoWithSpecific: {
-            /** Format: int32 */
-            code?: number;
-            message?: string;
-            data?: components["schemas"]["OrderDtoWithSpecific"];
+            data?: components["schemas"]["PageDto"];
         };
         "RsDataUserOrderResponseBody[]": {
             /** Format: int32 */
@@ -475,6 +635,37 @@ export interface components {
             code?: number;
             message?: string;
             data?: components["schemas"]["OrderDto"][];
+        };
+        /** @description 주문 상세 정보 DTO */
+        OrderDtoWithSpecific: {
+            /**
+             * Format: int64
+             * @description 주문 ID
+             */
+            id?: number;
+            /** @description 주문자 이메일 */
+            customerEmail?: string;
+            /** @description 주문 배송 주소 */
+            customerAddress?: string;
+            /**
+             * @description 주문 상태 코드
+             * @example ORDERED
+             * @enum {string}
+             */
+            state?: "ORDERED" | "PAID" | "SHIPPING" | "COMPLETED" | "CANCELED";
+            /**
+             * Format: date-time
+             * @description 주문 생성일
+             */
+            createdDate?: string;
+            /** @description 주문에 포함된 상품 목록 */
+            orderItems?: components["schemas"]["OrderItemDto"][];
+        };
+        RsDataOrderDtoWithSpecific: {
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["OrderDtoWithSpecific"];
         };
         AddressListResBody: {
             /** Format: int64 */
@@ -567,6 +758,154 @@ export interface operations {
             };
         };
     };
+    modifywithImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    data: components["schemas"]["ModifyReqBody"];
+                    /** Format: binary */
+                    file?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataProductDto"];
+                };
+            };
+        };
+    };
+    delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataVoid"];
+                };
+            };
+        };
+    };
+    isOrderable: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderReqBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataProductWithOrderable"];
+                };
+            };
+        };
+    };
+    updateAddress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                addressId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddressSubmitReqBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataAddressResBody"];
+                };
+            };
+        };
+    };
+    deleteAddress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                addressId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataVoid"];
+                };
+            };
+        };
+    };
+    setDefaultAddress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                addressId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataVoid"];
+                };
+            };
+        };
+    };
     createOrder: {
         parameters: {
             query?: never;
@@ -639,6 +978,34 @@ export interface operations {
             };
         };
     };
+    createWithImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    data: components["schemas"]["GCSReqBody"];
+                    /** Format: binary */
+                    file?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataProductDto"];
+                };
+            };
+        };
+    };
     getAddressList: {
         parameters: {
             query?: never;
@@ -678,17 +1045,40 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataAddressSubmitResBody"];
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataAddressResBody"];
                 };
             };
         };
     };
-    getOrderDetail: {
+    getItems: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataPageDto"];
+                };
+            };
+        };
+    };
+    getItem: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                orderId: number;
+                id: number;
             };
             cookie?: never;
         };
@@ -700,7 +1090,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataOrderDtoWithSpecific"];
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataProductDto"];
                 };
             };
         };
@@ -767,6 +1157,28 @@ export interface operations {
             };
         };
     };
+    getOrderDetail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json;charset=UTF-8": components["schemas"]["RsDataOrderDtoWithSpecific"];
+                };
+            };
+        };
+    };
     cancelOrder: {
         parameters: {
             query?: never;
@@ -814,28 +1226,6 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json;charset=UTF-8": components["schemas"]["RsDataVoid"];
-                };
-            };
-        };
-    };
-    deleteAddress: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                addressId: number;
-            };
             cookie?: never;
         };
         requestBody?: never;
