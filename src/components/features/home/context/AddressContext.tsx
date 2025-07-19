@@ -9,11 +9,12 @@ import {
   useEffect,
 } from "react";
 import { useUser } from "@/src/components/features/home/context/UserContext";
+import { AddressService } from "@/src/lib/backend/services/addressService";
 
 export interface Address {
   id: number;
-  address: string;
-  isDefault: boolean;
+  content: string;
+  isDefault?: boolean;
 }
 
 // AddressContext에서 제공하는 값/함수 타입
@@ -28,25 +29,29 @@ interface AddressContextType {
 
 const AddressContext = createContext<AddressContextType | undefined>(undefined);
 
-// 기본 초기 데이터 (임시, 나중에 API 연동 시 제거)
-const defaultAddresses: Address[] = [
-  { id: 1, address: "서울시 강남구 테헤란로 123", isDefault: true },
-  { id: 2, address: "경기도 성남시 분당구 수내동 456", isDefault: false },
-];
-
 export function AddressProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const [addresses, setAddresses] = useState<Address[]>([]);
 
-  // user 정보가 있을 때만 주소 목록 fetch (TODO: 실제 API 연동)
+  // user 정보가 있을 때만 주소 목록 fetch
   useEffect(() => {
     if (user) {
-      // TODO: 실제 API 연동(fetchAddresses 등)
-      setAddresses(defaultAddresses); // 임시: 나중에 API 결과로 대체
+      fetchAddresses();
     } else {
       setAddresses([]); // 로그아웃/탈퇴 시 주소 초기화
     }
   }, [user]);
+
+  // 주소 목록 조회 함수
+  const fetchAddresses = useCallback(async () => {
+    try {
+      const addressList = await AddressService.getAddressList();
+      setAddresses(addressList);
+    } catch (error) {
+      console.error("주소 목록 조회 실패:", error);
+      setAddresses([]);
+    }
+  }, []);
 
   // 주소 추가 (TODO: openapi-fetch로 /api/addresses POST 연동 필요)
   const add = useCallback((address: string) => {
@@ -55,7 +60,7 @@ export function AddressProvider({ children }: { children: ReactNode }) {
       ...prev,
       {
         id: Date.now(),
-        address,
+        content: address,
         isDefault: prev.length === 0,
       },
     ]);
