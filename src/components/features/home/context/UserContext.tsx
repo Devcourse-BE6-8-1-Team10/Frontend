@@ -57,29 +57,26 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUserState(null);
   };
 
-  // 사용자 정보 새로고침 (TODO: openapi-fetch로 /api/members/info 연동 필요)
+  // 사용자 정보 조회
   const fetchUserInfo = useCallback(async () => {
-    // TODO: openapi-fetch로 /api/members/info 호출해서 setUserState
-    // 임시 목업
-    setUserState({
-      id: 1,
-      email: "kimcs@example.com",
-      name: "김철수",
-      isAdmin: false,
-    });
+    try {
+      const userInfo = await AuthService.getUserInfo();
+      setUserState(userInfo);
+    } catch (error) {
+      console.error("사용자 정보 조회 오류:", error);
+      throw error;
+    }
   }, []);
 
-  // 로그인 (TODO: openapi-fetch로 /api/members/login 연동 필요)
+  // 로그인
   const login = useCallback(async (email: string, password: string) => {
-    // TODO: openapi-fetch로 /api/members/login 호출해서 setUserState, 토큰 저장 등
-    // 임시 목업
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setUserState({
-      id: 1,
-      email,
-      name: "김철수",
-      isAdmin: false,
-    });
+    try {
+      const userInfo = await AuthService.login({ email, password });
+      setUserState(userInfo);
+    } catch (error) {
+      console.error("로그인 오류:", error);
+      throw error;
+    }
   }, []);
 
   // 회원가입
