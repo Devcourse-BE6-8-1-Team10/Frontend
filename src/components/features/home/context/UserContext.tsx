@@ -7,6 +7,7 @@ import {
   ReactNode,
   useCallback,
 } from "react";
+import { AuthService } from "../../../../lib/backend/services";
 
 // UserContext: 인증/회원정보 관련 전역 상태 및 함수 제공
 
@@ -81,18 +82,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  // 회원가입 (TODO: openapi-fetch로 /api/members/join 연동 필요)
+  // 회원가입
   const signup = useCallback(
     async (name: string, email: string, password: string) => {
-      // TODO: openapi-fetch로 /api/members/join 호출해서 setUserState, 토큰 저장 등
-      // 임시 목업
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setUserState({
-        id: 2,
-        email,
-        name,
-        isAdmin: false,
-      });
+      try {
+        const userInfo = await AuthService.signup({ email, password, name });
+        setUserState(userInfo);
+      } catch (error) {
+        console.error("회원가입 오류:", error);
+        throw error;
+      }
     },
     []
   );
