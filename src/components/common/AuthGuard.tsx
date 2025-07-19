@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/src/components/features/home/context/UserContext";
+import CompleteModal from "@/src/components/features/modals/CompleteModal";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -13,6 +14,9 @@ interface AuthGuardProps {
 export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   const { isAuthenticated, isInitialized } = useUser();
   const router = useRouter();
+  // CompleteModal 상태 관리
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeMessage, setCompleteMessage] = useState("");
 
   useEffect(() => {
     // 초기화가 완료된 후에만 인증 상태 확인
@@ -20,8 +24,8 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
 
     if (requireAuth && !isAuthenticated) {
       // 로그인이 필요한 페이지인데 로그인되지 않은 경우
-      alert("로그인이 필요한 페이지입니다.");
-      router.push("/");
+      setCompleteMessage("로그인이 필요한 페이지입니다.");
+      setCompleteOpen(true);
     } else if (!requireAuth && isAuthenticated) {
       // 로그아웃 상태에서만 접근 가능한 페이지인데 로그인된 경우
       router.push("/");
@@ -42,12 +46,35 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
 
   // 인증 상태가 맞지 않으면 아무것도 렌더링하지 않음
   if (requireAuth && !isAuthenticated) {
-    return null;
+    return (
+      <>
+        <CompleteModal
+          open={completeOpen}
+          onClose={() => {
+            setCompleteOpen(false);
+            router.push("/");
+          }}
+          message={completeMessage}
+        />
+      </>
+    );
   }
 
   if (!requireAuth && isAuthenticated) {
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <CompleteModal
+        open={completeOpen}
+        onClose={() => {
+          setCompleteOpen(false);
+          router.push("/");
+        }}
+        message={completeMessage}
+      />
+    </>
+  );
 }

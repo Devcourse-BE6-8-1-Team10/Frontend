@@ -151,7 +151,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const withdraw = useCallback(async () => {
     try {
       await AuthService.withdraw();
-      setUserState(null); // 탈퇴 성공 시 로그아웃 처리
+      // setUserState(null) 제거 - SettingsPanel에서 직접 처리
     } catch (error) {
       console.error("회원 탈퇴 오류:", error);
       throw error;

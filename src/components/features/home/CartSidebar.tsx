@@ -40,6 +40,9 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   const [orderComplete, setOrderComplete] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  // CompleteModal 상태 관리
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeMessage, setCompleteMessage] = useState("");
 
   // handleRemoveItem: 장바구니에서 아이템 삭제
   const handleRemoveItem = (id: number) => {
@@ -103,6 +106,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
       clearCart();
       setSelectedAddress("");
       setOrderComplete(true);
+      setCompleteMessage("주문이 완료되었습니다.");
+      setCompleteOpen(true);
     } catch (e) {
       setErrorMessage("주문 처리 중 오류가 발생했습니다.");
       setErrorModalOpen(true);
@@ -165,7 +170,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   )}
                   {/* 상품 이미지 */}
                   <img
-                    src={item.product.imageUrl || ''}
+                    src={item.product.imageUrl || ""}
                     alt={item.product.productName}
                     className="w-24 h-24 object-cover rounded-md mr-4 border border-gray-200"
                   />
@@ -311,6 +316,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
         open={errorModalOpen}
         onClose={() => setErrorModalOpen(false)}
         message={errorMessage}
+      />
+      {/* 완료 모달 */}
+      <CompleteModal
+        open={completeOpen}
+        onClose={() => setCompleteOpen(false)}
+        message={completeMessage}
       />
     </>
   );

@@ -4,23 +4,39 @@ import { useUser } from "@/src/components/features/home/context/UserContext";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
+import CompleteModal from "@/src/components/features/modals/CompleteModal";
 
 export default function SettingsPanel() {
   const { clearUser, withdraw } = useUser();
   const router = useRouter();
   // ConfirmModal open 상태 관리
   const [confirmOpen, setConfirmOpen] = useState(false);
+  // CompleteModal 상태 관리
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeMessage, setCompleteMessage] = useState("");
 
   // 회원 탈퇴 실제 처리
   const handleWithdraw = async () => {
     try {
+      // 회원 탈퇴 실행
       await withdraw();
-      clearUser();
-      alert("회원 탈퇴가 완료되었습니다.");
+      // 즉시 홈으로 이동하여 AuthGuard 메시지 방지
       router.push("/");
+      // 완료 메시지 설정
+      setCompleteMessage("회원 탈퇴가 완료되었습니다.");
+      setCompleteOpen(true);
+      // clearUser 호출
+      clearUser();
     } catch (e) {
-      alert("회원 탈퇴에 실패했습니다. 다시 시도해 주세요.");
+      console.error("회원 탈퇴 실패:", e);
+      setCompleteMessage("회원 탈퇴에 실패했습니다. 다시 시도해 주세요.");
+      setCompleteOpen(true);
     }
+  };
+
+  // 완료 모달 닫기 핸들러
+  const handleCompleteClose = () => {
+    setCompleteOpen(false);
   };
 
   return (
@@ -54,6 +70,12 @@ export default function SettingsPanel() {
           handleWithdraw();
         }}
         message={"정말로 회원 탈퇴하시겠습니까?\n이 작업은 되돌릴 수 없습니다."}
+      />
+      {/* 완료 모달 */}
+      <CompleteModal
+        open={completeOpen}
+        onClose={handleCompleteClose}
+        message={completeMessage}
       />
     </section>
   );

@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/src/components/features/home/context/UserContext";
 import Button from "@/src/components/common/Button";
 import CartSidebar from "@/src/components/features/home/CartSidebar";
+import CompleteModal from "@/src/components/features/modals/CompleteModal";
 import { useCart } from "@/src/components/features/home/context/CartContext";
 
 // 상단 네비게이션/헤더 컴포넌트
@@ -21,6 +22,9 @@ import { useCart } from "@/src/components/features/home/context/CartContext";
 const Header = () => {
   // 클라이언트에서만 렌더링되도록 마운트 상태 관리
   const [isMounted, setIsMounted] = useState(false);
+  // CompleteModal 상태 관리
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeMessage, setCompleteMessage] = useState("");
 
   useEffect(() => {
     setIsMounted(true);
@@ -34,6 +38,15 @@ const Header = () => {
 
   // 장바구니 전체 수량 계산
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  // 로그아웃 핸들러
+  const handleLogout = () => {
+    clearUser();
+    // 즉시 홈으로 이동하여 AuthGuard 메시지 방지
+    router.push("/");
+    setCompleteMessage("로그아웃되었습니다.");
+    setCompleteOpen(true);
+  };
 
   return (
     <>
@@ -58,8 +71,8 @@ const Header = () => {
 
             <div className="ml-auto">
               {/* 인증 상태별 버튼 렌더링 */}
-              {isMounted && (
-                !isAuthenticated ? (
+              {isMounted &&
+                (!isAuthenticated ? (
                   // 로그인 안 된 경우
                   <Button
                     icon={LogIn}
@@ -71,7 +84,11 @@ const Header = () => {
                   <div className="flex items-center space-x-4">
                     {/* 관리자 계정이면 관리자 페이지 버튼 */}
                     {user?.isAdmin && (
-                      <Button icon={Shield} text="관리자 페이지" onClick={() => router.push("/admin")} />
+                      <Button
+                        icon={Shield}
+                        text="관리자 페이지"
+                        onClick={() => router.push("/admin")}
+                      />
                     )}
 
                     {/* 마이페이지 이동 */}
@@ -97,14 +114,10 @@ const Header = () => {
                     <Button
                       icon={LogOut}
                       text="로그아웃"
-                      onClick={() => {
-                        clearUser();
-                        router.push("/");
-                      }}
+                      onClick={handleLogout}
                     />
                   </div>
-                )
-              )}
+                ))}
             </div>
           </div>
         </div>
@@ -118,6 +131,14 @@ const Header = () => {
           setCartItems={setCartItems}
         />
       )}
+      {/* 완료 모달 */}
+      <CompleteModal
+        open={completeOpen}
+        onClose={() => {
+          setCompleteOpen(false);
+        }}
+        message={completeMessage}
+      />
     </>
   );
 };

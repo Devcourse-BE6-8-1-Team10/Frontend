@@ -7,6 +7,7 @@ import { Input } from "@/src/components/common/Input";
 import { PrimaryButton } from "@/src/components/common/PrimaryButton";
 import { useUser } from "@/src/components/features/home/context/UserContext";
 import { PasswordInput } from "@/src/components/common/PasswordInput";
+import CompleteModal from "@/src/components/features/modals/CompleteModal";
 
 export function LoginModal({
   onClose,
@@ -21,6 +22,9 @@ export function LoginModal({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  // CompleteModal 상태 관리
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeMessage, setCompleteMessage] = useState("");
 
   // 로그인 폼 제출 핸들러
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +38,8 @@ export function LoginModal({
     } catch (error) {
       // 실패 시 에러 처리
       console.error("로그인 실패:", error);
-      alert("로그인에 실패했습니다. 다시 시도해주세요.");
+      setCompleteMessage("로그인에 실패했습니다. 다시 시도해주세요.");
+      setCompleteOpen(true);
     } finally {
       setIsLoading(false);
     }
@@ -80,6 +85,12 @@ export function LoginModal({
           </button>
         </div>
       </ModalContent>
+      {/* 완료 모달 */}
+      <CompleteModal
+        open={completeOpen}
+        onClose={() => setCompleteOpen(false)}
+        message={completeMessage}
+      />
     </Modal>
   );
 }

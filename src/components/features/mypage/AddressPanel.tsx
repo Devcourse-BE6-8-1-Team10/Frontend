@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Button from "@/src/components/common/Button";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
+import CompleteModal from "@/src/components/features/modals/CompleteModal";
 import { useAddressContext } from "@/src/components/features/home/context/AddressContext";
 
 export default function AddressPanel() {
@@ -19,6 +20,9 @@ export default function AddressPanel() {
     onConfirm: () => {},
     message: "",
   });
+  // CompleteModal 상태 관리
+  const [completeOpen, setCompleteOpen] = useState(false);
+  const [completeMessage, setCompleteMessage] = useState("");
 
   // ───────────────────────────────
   // 제어 함수
@@ -39,9 +43,12 @@ export default function AddressPanel() {
     try {
       await add(inputValue.trim());
       resetForm();
+      setCompleteMessage("주소가 등록되었습니다.");
+      setCompleteOpen(true);
     } catch (error) {
       console.error("주소 등록록 실패:", error);
-      alert("주소 추가에 실패했습니다.");
+      setCompleteMessage("주소 추가에 실패했습니다.");
+      setCompleteOpen(true);
     }
   };
 
@@ -50,9 +57,12 @@ export default function AddressPanel() {
     try {
       await edit(id, inputValue.trim());
       resetForm();
+      setCompleteMessage("주소가 수정되었습니다.");
+      setCompleteOpen(true);
     } catch (error) {
       console.error("주소 수정 실패:", error);
-      alert("주소 수정에 실패했습니다.");
+      setCompleteMessage("주소 수정에 실패했습니다.");
+      setCompleteOpen(true);
     }
   };
 
@@ -60,9 +70,12 @@ export default function AddressPanel() {
     openConfirm("이 주소를 삭제하시겠습니까?", async () => {
       try {
         await remove(id);
+        setCompleteMessage("주소가 삭제되었습니다.");
+        setCompleteOpen(true);
       } catch (error) {
         console.error("주소 삭제 실패:", error);
-        alert("주소 삭제에 실패했습니다.");
+        setCompleteMessage("주소 삭제에 실패했습니다.");
+        setCompleteOpen(true);
       }
     });
   };
@@ -71,9 +84,12 @@ export default function AddressPanel() {
     openConfirm("기본 배송지를 변경하시겠습니까?", async () => {
       try {
         await setDefault(id);
+        setCompleteMessage("기본 배송지가 변경되었습니다.");
+        setCompleteOpen(true);
       } catch (error) {
         console.error("기본 주소 설정 실패:", error);
-        alert("기본 주소 설정에 실패했습니다.");
+        setCompleteMessage("기본 주소 설정에 실패했습니다.");
+        setCompleteOpen(true);
       }
     });
   };
@@ -195,6 +211,12 @@ export default function AddressPanel() {
           message={confirm.message}
         />
       )}
+      {/* 완료 모달 */}
+      <CompleteModal
+        open={completeOpen}
+        onClose={() => setCompleteOpen(false)}
+        message={completeMessage}
+      />
     </section>
   );
 }

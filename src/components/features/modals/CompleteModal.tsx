@@ -20,16 +20,26 @@ export default function OrderCompleteModal({
   return (
     <Modal onClose={onClose}>
       <ModalContent>
-        <div className="flex flex-col items-center justify-center gap-6 py-6">
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">{message}</h3>
-          <Button
-            text="확인"
-            onClick={onClose}
-            className="px-8 py-3 text-lg font-semibold rounded-lg mt-4"
-            bgColor="bg-amber-600"
-            fontColor="text-white"
-            hoverColor="hover:bg-amber-500"
-          />
+        <div className="space-y-6">
+          {/* 제목 */}
+          <h3 className="text-xl font-bold text-gray-900">알림</h3>
+
+          {/* 메시지 */}
+          <p className="text-base text-gray-700 whitespace-pre-line">
+            {message}
+          </p>
+
+          {/* 버튼 */}
+          <div className="flex justify-end">
+            <Button
+              text="확인"
+              onClick={onClose}
+              className="px-5 py-3 text-sm border"
+              bgColor="bg-amber-600"
+              fontColor="text-white"
+              hoverColor="hover:bg-amber-500"
+            />
+          </div>
         </div>
       </ModalContent>
     </Modal>
