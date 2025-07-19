@@ -170,7 +170,7 @@ const OrderManagement: React.FC = () => {
                 <ul className="space-y-2">
                   {itemsToShow.map((item, index) => (
                     <li key={index} className="flex justify-between text-sm">
-                      <span>{item.product.name} x {item.quantity}</span>
+                      <span>{item.product.productName} x {item.quantity}</span>
                       <span>{(item.product.price * item.quantity).toLocaleString()}원</span>
                     </li>
                   ))}

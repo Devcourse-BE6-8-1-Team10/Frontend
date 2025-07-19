@@ -1,11 +1,13 @@
 export interface Product {
     id: number;
-    name: string;
+    createdDate: string;
+    modifiedDate: string;
+    productName: string;
     price: number;
-    image: string;
-    description: string;
+    imageUrl: string | null;
     category: string;
-    isSoldOut?: boolean;
+    description: string;
+    orderable: boolean;
 }
 
 export interface CartItem {

@@ -2,4 +2,5 @@
 export { AuthService, type UserInfo } from "./authService";
 export { OrderService, type Order, type UserOrder, type UserOrderDetail } from "./orderService";
 export { AddressService, type Address, type AddressSubmitResponse } from "./addressService";
-export { AdminService } from "./adminService"; 
+export { AdminService } from "./adminService";
+export { ProductService } from "./productService"; 

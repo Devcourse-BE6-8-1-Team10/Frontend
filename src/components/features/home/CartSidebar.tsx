@@ -152,11 +152,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 <li
                   key={item.product.id}
                   className={`flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-200 ${
-                    item.product.isSoldOut ? "opacity-50 grayscale" : ""
+                    !item.product.orderable ? "opacity-50 grayscale" : ""
                   }`}
                 >
                   {/* 품절 상품 표시 오버레이 */}
-                  {item.product.isSoldOut && (
+                  {!item.product.orderable && (
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-10">
                       <span className="text-white text-xl font-bold">
                         SOLD OUT
@@ -165,14 +165,14 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   )}
                   {/* 상품 이미지 */}
                   <img
-                    src={item.product.image}
-                    alt={item.product.name}
+                    src={item.product.imageUrl || ''}
+                    alt={item.product.productName}
                     className="w-24 h-24 object-cover rounded-md mr-4 border border-gray-200"
                   />
                   {/* 상품 정보 및 수량 조절 */}
                   <div className="flex-1 flex flex-col justify-between">
                     <h3 className="font-semibold text-lg text-gray-800">
-                      {item.product.name}
+                      {item.product.productName}
                     </h3>
                     <p className="text-gray-600 text-sm">
                       {item.product.price.toLocaleString()}원
@@ -187,11 +187,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                           )
                         }
                         className={`px-3 py-1 border border-gray-300 rounded-l-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200 ${
-                          item.product.isSoldOut
+                          !item.product.orderable
                             ? "cursor-not-allowed"
                             : "cursor-pointer"
                         }`}
-                        disabled={item.product.isSoldOut}
+                        disabled={!item.product.orderable}
                       >
                         -
                       </button>
@@ -208,11 +208,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                           )
                         }
                         className={`px-3 py-1 border border-gray-300 rounded-r-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors duration-200 ${
-                          item.product.isSoldOut
+                          !item.product.orderable
                             ? "cursor-not-allowed"
                             : "cursor-pointer"
                         }`}
-                        disabled={item.product.isSoldOut}
+                        disabled={!item.product.orderable}
                       >
                         +
                       </button>
@@ -223,11 +223,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                     <button
                       onClick={() => handleRemoveItem(item.product.id)}
                       className={`text-red-500 hover:text-red-700 text-sm transition-colors duration-200 ${
-                        item.product.isSoldOut
+                        !item.product.orderable
                           ? "cursor-not-allowed"
                           : "cursor-pointer"
                       }`}
-                      disabled={item.product.isSoldOut}
+                      disabled={!item.product.orderable}
                     >
                       삭제
                     </button>

@@ -16,22 +16,22 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
     const { isAuthenticated } = useUser();
     const router = useRouter();
 
-    const isSoldOut = product.isSoldOut;
+    const orderable = product.orderable;
 
     const handleIncrease = () => {
-        if (!isSoldOut) {
+        if (orderable) {
             setQuantity(quantity + 1);
         }
     };
 
     const handleDecrease = () => {
-        if (!isSoldOut && quantity > 0) {
+        if (orderable && quantity > 0) {
             setQuantity(quantity - 1);
         }
     };
 
     const handleAddToCart = () => {
-        if (isSoldOut) return;
+        if (!orderable) return;
 
         if (!isAuthenticated) {
             alert("로그인이 필요한 서비스입니다.");
@@ -48,11 +48,11 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
         <div className={`group relative flex h-full w-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg`}>
             <div className="aspect-w-3 aspect-h-4 overflow-hidden rounded-t-lg bg-gray-200 relative">
                 <img
-                    src={product.image}
-                    alt={product.name}
-                    className={`h-full w-full object-cover object-center transition-all duration-300 group-hover:scale-105 ${isSoldOut ? 'grayscale' : ''}`}
+                    src={product.imageUrl || ''}
+                    alt={product.productName}
+                    className={`h-full w-full object-cover object-center transition-all duration-300 group-hover:scale-105 ${!orderable ? 'grayscale' : ''}`}
                 />
-                {isSoldOut && (
+                {!orderable && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 bg-opacity-40 z-10">
                         <span className="text-white text-2xl font-bold tracking-wider">SOLD OUT</span>
                     </div>
@@ -60,20 +60,20 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
             </div>
             <div className="flex flex-1 flex-col p-4">
                 <div className="flex justify-between items-center mb-2">
-                    <h3 className={`text-base font-semibold ${isSoldOut ? 'text-gray-500' : 'text-gray-900'}`}>{product.name}</h3>
-                    <p className={`text-xs px-2 py-1 rounded-full ${isSoldOut ? 'bg-gray-300 text-gray-600' : 'bg-amber-100 text-amber-800'}`}>{product.category}</p>
+                    <h3 className={`text-base font-semibold ${!orderable ? 'text-gray-500' : 'text-gray-900'}`}>{product.productName}</h3>
+                    <p className={`text-xs px-2 py-1 rounded-full ${!orderable ? 'bg-gray-300 text-gray-600' : 'bg-amber-100 text-amber-800'}`}>{product.category}</p>
                 </div>
                 <div className="flex flex-1 flex-col">
-                    <p className={`text-sm mb-3 ${isSoldOut ? 'text-gray-400' : 'text-gray-500'} flex-grow`}>{product.description}</p>
-                    <p className={`text-xl font-bold mt-auto ${isSoldOut ? 'text-gray-500' : 'text-amber-700'}`}>{product.price.toLocaleString()}원</p>
+                    <p className={`text-sm mb-3 ${!orderable ? 'text-gray-400' : 'text-gray-500'} flex-grow`}>{product.description}</p>
+                    <p className={`text-xl font-bold mt-auto ${!orderable ? 'text-gray-500' : 'text-amber-700'}`}>{product.price.toLocaleString()}원</p>
                 </div>
                 <div className="flex flex-col justify-end pt-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center rounded-md border border-gray-300">
                             <button
                                 onClick={handleDecrease}
-                                className={`px-3 py-1 text-gray-600 transition hover:bg-gray-100 rounded-l-md ${isSoldOut ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                                disabled={isSoldOut}
+                                className={`px-3 py-1 text-gray-600 transition hover:bg-gray-100 rounded-l-md ${!orderable ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                disabled={!orderable}
                             >
                                 -
                             </button>
@@ -82,20 +82,20 @@ const ProductCard = ({ product, addToCart }: ProductCardProps) => {
                             </span>
                             <button
                                 onClick={handleIncrease}
-                                className={`px-3 py-1 text-gray-600 transition hover:bg-gray-100 rounded-r-md ${isSoldOut ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                                disabled={isSoldOut}
+                                className={`px-3 py-1 text-gray-600 transition hover:bg-gray-100 rounded-r-md ${!orderable ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                disabled={!orderable}
                             >
                                 +
                             </button>
                         </div>
                         <Button
                             text="+ 담기"
-                            bgColor={isSoldOut ? "bg-gray-400" : "bg-black"}
+                            bgColor={!orderable ? "bg-gray-400" : "bg-black"}
                             fontColor="text-white"
-                            hoverColor={isSoldOut ? "hover:bg-gray-400" : "hover:bg-gray-800"}
-                            className={`text-sm ${isSoldOut ? 'cursor-not-allowed' : ''}`}
+                            hoverColor={!orderable ? "hover:bg-gray-400" : "hover:bg-gray-800"}
+                            className={`text-sm ${!orderable ? 'cursor-not-allowed' : ''}`}
                             onClick={handleAddToCart}
-                            disabled={isSoldOut}
+                            disabled={!orderable}
                         />
                     </div>
                 </div>
