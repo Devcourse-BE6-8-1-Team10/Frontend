@@ -25,8 +25,7 @@ export default function OrderDetailModal({
     (sum, item) => sum + item.count * item.price,
     0
   );
-  // 서버 상태값에 따라 수정 가능 여부 판단
-  const canModify = order.state === "ORDERED" || order.state === "접수 전";
+  const canModify = order.state === "ORDERED" || order.state === "주문완료";
   const [selectedAddress, setSelectedAddress] = useState(order.customerAddress);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({
@@ -57,15 +56,10 @@ export default function OrderDetailModal({
 
   function formatOrderStatus(status: string) {
     const statusMap: Record<string, string> = {
-      ORDERED: "주문 접수",
-      PAID: "결제 완료",
+      ORDERED: "주문완료",
       SHIPPING: "배송중",
       COMPLETED: "배송완료",
-      CANCELED: "취소됨",
-      "접수 전": "주문 접수",
-      배송중: "배송중",
-      배송완료: "배송완료",
-      취소됨: "취소됨",
+      CANCELED: "주문취소",
     };
     return statusMap[status] || status;
   }
