@@ -147,23 +147,29 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     [orders, fetchOrders]
   );
 
-  const cancelOrder = useCallback(async (orderId: number) => {
-    setLoading(true);
-    setError(null);
-    try {
-      setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId ? { ...order, state: "취소됨" } : order
-        )
-      );
-    } catch (err) {
-      setError("주문 취소에 실패했습니다.");
-      console.error("주문 취소 실패:", err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // 주문 취소
+  const cancelOrder = useCallback(
+    async (orderId: number) => {
+      setLoading(true);
+      setError(null);
+      try {
+        // 서버에 주문 취소 요청
+        await OrderService.cancelOrder(orderId);
+
+        // 주문 목록 새로고침 (서버에서 최신 데이터 조회)
+        await fetchOrders();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "주문 취소에 실패했습니다.";
+        setError(errorMessage);
+        console.error("주문 취소 실패:", err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchOrders]
+  );
 
   const updateOrderAddress = useCallback(
     async (orderId: number, address: string) => {
