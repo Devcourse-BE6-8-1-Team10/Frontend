@@ -100,14 +100,30 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
-  // 회원정보 수정 (TODO: openapi-fetch로 /api/members/info 수정 연동 필요)
+  // 회원정보 수정 (AuthService 사용)
   const updateUserInfo = useCallback(
     async (data: { name?: string; password?: string }) => {
-      // TODO: openapi-fetch로 /api/members/info 수정 API 호출
-      // 임시: 이름만 변경 가능, 비밀번호는 무시
-      setUserState((prev) => (prev ? { ...prev, ...data } : prev));
+      try {
+        // 현재 사용자 정보 가져오기
+        if (!user) {
+          throw new Error("로그인이 필요합니다.");
+        }
+
+        // 수정할 데이터 준비 (email은 필수)
+        const updateData = {
+          email: user.email,
+          name: data.name || user.name,
+          password: data.password || "", // 비밀번호가 제공되지 않으면 빈 문자열
+        };
+
+        const updatedUserInfo = await AuthService.updateMemberInfo(updateData);
+        setUserState(updatedUserInfo);
+      } catch (error) {
+        console.error("회원 정보 수정 오류:", error);
+        throw error;
+      }
     },
-    []
+    [user]
   );
 
   // 회원 탈퇴

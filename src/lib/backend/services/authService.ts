@@ -3,6 +3,7 @@ import type { components } from "../api/schema.d.ts";
 
 type MemberJoinReqBody = components["schemas"]["MemberJoinReqBody"];
 type MemberLoginReqBody = components["schemas"]["MemberLoginReqBody"];
+type MemberUpdateDto = components["schemas"]["MemberUpdateDto"];
 type MemberWithAuthDto = components["schemas"]["MemberWithAuthDto"];
 
 export interface UserInfo {
@@ -84,6 +85,28 @@ export class AuthService {
     if (error) {
       throw new Error("로그아웃에 실패했습니다.");
     }
+  }
+
+  // 회원 정보 수정
+  static async updateMemberInfo(data: MemberUpdateDto): Promise<UserInfo> {
+    const { data: response, error } = await client.PUT("/api/members/info", {
+      body: data,
+    });
+
+    if (error) {
+      throw new Error("회원 정보 수정에 실패했습니다.");
+    }
+
+    if (!response?.data) {
+      throw new Error("회원 정보 수정 응답 데이터가 없습니다.");
+    }
+
+    return {
+      id: response.data.id,
+      email: response.data.email,
+      name: response.data.name,
+      isAdmin: response.data.isAdmin,
+    };
   }
 
   // 회원 탈퇴
