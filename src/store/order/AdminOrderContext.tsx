@@ -5,9 +5,10 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-import type { Order as AdminOrder } from "@/src/services/orderService";
+import type { components } from "@/src/lib/backend/api/schema.d.ts";
+type AdminOrder = components["schemas"]["OrderDtoWithName"];
+type OrderStatus = AdminOrder["state"];
 import { AdminService } from "@/src/services/adminService";
-import type { OrderStatus } from "@/src/types/order";
 
 interface AdminOrderContextType {
   orders: AdminOrder[];
@@ -35,7 +36,10 @@ export const AdminOrderProvider = ({ children }: { children: ReactNode }) => {
       setOrders(
         adminOrders.map((order) => ({
           ...order,
-          orderItems: order.orderItems ?? [],
+          orderItems: (order.orderItems ?? []).map((item) => ({
+            ...item,
+            productName: item.productName ?? "",
+          })),
         }))
       );
     } catch (err) {

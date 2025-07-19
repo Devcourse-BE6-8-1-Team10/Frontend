@@ -3,7 +3,9 @@ import type { components } from "@/src/lib/backend/api/schema.d.ts";
 import type { OrderStatus } from "@/src/types/order";
 
 // 타입 정의
-type OrderDto = components["schemas"]["OrderDto"];
+type OrderDtoWithName = components["schemas"]["OrderDtoWithName"];
+type OrderDtoWithSpecific = components["schemas"]["OrderDtoWithSpecific"];
+type OrderItemDto = components["schemas"]["OrderItemDto"];
 
 export interface Order {
   id: number;
@@ -22,47 +24,42 @@ export interface Order {
 
 export class AdminService {
   // 관리자용 주문 목록 조회
-  static async getOrders(): Promise<Order[]> {
+  static async getOrders(): Promise<OrderDtoWithName[]> {
     const { data: response, error } = await client.GET("/api/adm/orders");
-
     if (error) {
       throw new Error("주문 목록 조회에 실패했습니다.");
     }
-
     if (!response?.data) {
       return [];
     }
-
-    return response.data;
+    // orderItems가 undefined면 []로, productName 등 필드 포함
+    return response.data.map(order => ({
+      ...order,
+      orderItems: (order.orderItems ?? []).map(item => ({
+        ...item,
+        productName: item.productName ?? "",
+      })),
+    }));
   }
 
   // 주문 상세 조회 (관리자용)
-  static async getOrderDetail(orderId: number): Promise<OrderDto> {
+  static async getOrderDetail(orderId: number): Promise<OrderDtoWithSpecific> {
     const { data: response, error } = await client.GET("/api/adm/orders/{orderId}/detail", {
       params: { path: { orderId } },
     });
-
     if (error) {
       throw new Error("주문 상세 조회에 실패했습니다.");
     }
-
     if (!response?.data) {
       throw new Error("주문 상세 정보가 없습니다.");
     }
-
+    // orderItems가 undefined면 []로, productName 등 필드 포함
     return {
-      id: response.data.id!,
-      customerEmail: response.data.customerEmail!,
-      createdDate: response.data.createdDate!,
-      state: response.data.state!,
-      customerAddress: response.data.customerAddress!,
-      orderItems: response.data.orderItems?.map((item) => ({
-        id: item.id!,
-        orderId: item.orderId!,
-        productId: item.productId!,
-        count: item.count!,
-        price: item.price!,
-      })) || [],
+      ...response.data,
+      orderItems: (response.data.orderItems ?? []).map(item => ({
+        ...item,
+        productName: item.productName ?? "",
+      })),
     };
   }
 

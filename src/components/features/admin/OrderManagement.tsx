@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import type { Order as AdminOrder } from "@/src/services/orderService";
-import type { OrderStatus } from "@/src/types/order";
+import type { components } from "@/src/lib/backend/api/schema.d.ts";
+type AdminOrder = components["schemas"]["OrderDtoWithName"];
+type OrderStatus = AdminOrder["state"];
 import Button from "@/src/components/common/Button";
 import {
   FaPhone,
@@ -208,7 +209,10 @@ const OrderManagement: React.FC = () => {
                   {itemsToShow.map((item, index) => (
                     <li key={index} className="flex justify-between text-sm">
                       <span>
-                        {`상품 ID: ${item.productId}`} x {item.count}
+                        {item.productName
+                          ? `${item.productName}`
+                          : `상품 ID: ${item.productId}`}{" "}
+                        x {item.count}
                       </span>
                       <span>
                         {(item.price * item.count).toLocaleString()}원
