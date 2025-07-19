@@ -163,7 +163,7 @@ export default function EditProfilePage() {
                             : "hover:bg-amber-700"
                         }
                         fontColor="text-white"
-                        className="px-4 py-2 text-sm"
+                        className="px-6"
                       />
                     </div>
                     <p className="mt-1 text-sm text-gray-500">
@@ -221,10 +221,17 @@ export default function EditProfilePage() {
                       <Button
                         text="저장"
                         onClick={handleSubmit}
-                        bgColor="bg-amber-600"
-                        hoverColor="hover:bg-amber-500"
+                        bgColor={
+                          isPasswordVerified ? "bg-amber-600" : "bg-gray-400"
+                        }
+                        hoverColor={
+                          isPasswordVerified
+                            ? "hover:bg-amber-500"
+                            : "hover:bg-gray-400"
+                        }
                         fontColor="text-white"
                         className="px-6"
+                        disabled={!isPasswordVerified}
                       />
                     </div>
                   </td>
