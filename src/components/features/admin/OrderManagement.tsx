@@ -14,7 +14,8 @@ import { useAdminOrders } from "@/src/store/order/AdminOrderContext";
 import { OrderService } from "@/src/services/orderService";
 
 const OrderManagement: React.FC = () => {
-  const { orders, fetchAdminOrders, loading, error } = useAdminOrders();
+  // fetchAdminOrders를 사용하여 관리자 주문 목록을 불러온다
+  const { orders, fetchAdminOrders, loading, error } = useOrders();
   const [changedOrders, setChangedOrders] = useState<Set<number>>(new Set());
   const [filteredOrders, setFilteredOrders] = useState<AdminOrder[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
