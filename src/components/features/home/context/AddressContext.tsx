@@ -73,19 +73,20 @@ export function AddressProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // 주소 수정
-  const edit = useCallback(
-    async (id: number, newAddress: string) => {
-      try {
-        await AddressService.updateAddress(id, newAddress);
-        // 서버에서 최신 데이터 조회
-        await fetchAddresses();
-      } catch (error) {
-        console.error("주소 수정 실패:", error);
-        throw error;
-      }
-    },
-    [fetchAddresses]
-  );
+  const edit = useCallback(async (id: number, newAddress: string) => {
+    try {
+      const updatedAddress = await AddressService.updateAddress(id, newAddress);
+      // 로컬 상태 직접 업데이트
+      setAddresses((prev) =>
+        prev.map((addr) =>
+          addr.id === id ? { ...addr, content: updatedAddress.content } : addr
+        )
+      );
+    } catch (error) {
+      console.error("주소 수정 실패:", error);
+      throw error;
+    }
+  }, []);
 
   // 주소 삭제
   const remove = useCallback(async (id: number) => {
@@ -105,19 +106,21 @@ export function AddressProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // 기본 주소 설정
-  const setDefault = useCallback(
-    async (id: number) => {
-      try {
-        await AddressService.setDefaultAddress(id);
-        // 서버에서 최신 데이터 조회
-        await fetchAddresses();
-      } catch (error) {
-        console.error("기본 주소 설정 실패:", error);
-        throw error;
-      }
-    },
-    [fetchAddresses]
-  );
+  const setDefault = useCallback(async (id: number) => {
+    try {
+      await AddressService.setDefaultAddress(id);
+      // 로컬 상태 직접 업데이트
+      setAddresses((prev) =>
+        prev.map((addr) => ({
+          ...addr,
+          isDefault: addr.id === id,
+        }))
+      );
+    } catch (error) {
+      console.error("기본 주소 설정 실패:", error);
+      throw error;
+    }
+  }, []);
 
   // 주소 전체 초기화
   const reset = useCallback(() => setAddresses([]), []);
