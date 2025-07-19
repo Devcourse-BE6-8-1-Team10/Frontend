@@ -4,17 +4,15 @@ import { Modal } from "@/src/components/common/Modal";
 import { ModalContent } from "@/src/components/common/ModalContent";
 import Button from "@/src/components/common/Button";
 import { useState } from "react";
-import OrderAddressSelectModal from "@/src/components/features/modals/OrderAddressSelectModal";
+import AddressSelectModal from "@/src/components/features/modals/AddressSelectModal";
 import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
+import {
+  useOrders,
+  type Order,
+} from "@/src/components/features/home/context/OrderContext";
 
 interface OrderDetailModalProps {
-  order: {
-    id: string;
-    date: string;
-    status: string;
-    address: string;
-    items: { name: string; count: number; price: number }[];
-  };
+  order: Order;
   onClose: () => void;
 }
 
@@ -22,12 +20,13 @@ export default function OrderDetailModal({
   order,
   onClose,
 }: OrderDetailModalProps) {
-  const totalPrice = order.items.reduce(
+  const { cancelOrder, updateOrderAddress } = useOrders();
+  const totalPrice = order.orderItems.reduce(
     (sum, item) => sum + item.count * item.price,
     0
   );
-  const canModify = order.status === "접수 전";
-  const [selectedAddress, setSelectedAddress] = useState(order.address);
+  const canModify = order.state === "접수 전";
+  const [selectedAddress, setSelectedAddress] = useState(order.customerAddress);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({
     open: false,
@@ -39,30 +38,21 @@ export default function OrderDetailModal({
     setConfirmModal({
       open: true,
       message: "주문을 취소하시겠습니까?",
-      onConfirm: () => {
-        // TODO: 서버에 주문 취소 요청
-        console.log("주문 취소 요청:", { orderId: order.id });
-        setConfirmModal({ ...confirmModal, open: false });
-        onClose();
+      onConfirm: async () => {
+        try {
+          await cancelOrder(order.id);
+          setConfirmModal({ ...confirmModal, open: false });
+          onClose();
+        } catch (error) {
+          console.error("주문 취소 실패:", error);
+        }
       },
     });
   };
 
-  const handleAddressChange = (newAddress: string) => {
-    setConfirmModal({
-      open: true,
-      message: "배송지를 변경하시겠습니까?",
-      onConfirm: () => {
-        setSelectedAddress(newAddress);
-        // TODO: 서버에 배송지 변경 요청
-        console.log("배송지 변경 요청:", {
-          orderId: order.id,
-          newAddress: newAddress,
-        });
-        setConfirmModal({ ...confirmModal, open: false });
-      },
-    });
-  };
+  function formatDate(dateString: string) {
+    return new Date(dateString).toLocaleDateString("ko-KR");
+  }
 
   return (
     <Modal onClose={onClose} size="large">
@@ -80,12 +70,12 @@ export default function OrderDetailModal({
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-gray-500">주문일</dt>
-                  <dd>{order.date}</dd>
+                  <dd>{formatDate(order.createdDate)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-gray-500">상태</dt>
                   <dd className="text-orange-600 font-semibold">
-                    {order.status}
+                    {order.state}
                   </dd>
                 </div>
               </dl>
@@ -95,14 +85,14 @@ export default function OrderDetailModal({
             <section className="border rounded-lg p-6 bg-white shadow-sm flex-1">
               <h3 className="text-xl font-semibold mb-4">주문 상품 목록</h3>
               <ul className="space-y-4">
-                {order.items.map((item, idx) => (
+                {order.orderItems.map((item, idx) => (
                   <li
-                    key={idx}
+                    key={item.id}
                     className="text-lg border-b pb-3 last:border-b-0"
                   >
                     <div className="flex justify-between items-center">
                       <span>
-                        {item.name} × {item.count}
+                        {item.name ?? `상품${item.productId}`} × {item.count}
                       </span>
                       <span className="font-semibold">
                         {(item.count * item.price).toLocaleString()}원
@@ -136,11 +126,20 @@ export default function OrderDetailModal({
                   className="w-full mt-2 text-lg"
                 />
 
-                <OrderAddressSelectModal
+                {/* 배송지 변경 모달 */}
+                <AddressSelectModal
                   open={isAddressModalOpen}
                   onClose={() => setIsAddressModalOpen(false)}
-                  onSelect={handleAddressChange}
                   currentAddress={selectedAddress}
+                  onEditSave={async (edited: string) => {
+                    await updateOrderAddress(order.id, edited);
+                    setSelectedAddress(edited);
+                  }}
+                  onSelect={async (address: string) => {
+                    await updateOrderAddress(order.id, address);
+                    setSelectedAddress(address);
+                    setIsAddressModalOpen(false);
+                  }}
                 />
               </div>
 
