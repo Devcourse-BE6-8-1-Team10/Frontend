@@ -21,9 +21,9 @@ export interface Address {
 interface AddressContextType {
   addresses: Address[];
   add: (address: string) => Promise<void>;
-  edit: (id: number, newAddress: string) => void; // TODO: 실제 API 연동 필요
+  edit: (id: number, newAddress: string) => Promise<void>;
   remove: (id: number) => Promise<void>;
-  setDefault: (id: number) => void; // TODO: 실제 API 연동 필요
+  setDefault: (id: number) => Promise<void>;
   reset: () => void;
   fetchAddresses: () => Promise<void>;
 }
@@ -72,13 +72,20 @@ export function AddressProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // 주소 수정 (TODO: openapi-fetch로 /api/addresses/{id} PUT 연동 필요)
-  const edit = useCallback((id: number, newAddress: string) => {
-    // TODO: 실제 API 연동 후 setAddresses로 상태 갱신
-    setAddresses((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, address: newAddress } : a))
-    );
-  }, []);
+  // 주소 수정
+  const edit = useCallback(
+    async (id: number, newAddress: string) => {
+      try {
+        await AddressService.updateAddress(id, newAddress);
+        // 서버에서 최신 데이터 조회
+        await fetchAddresses();
+      } catch (error) {
+        console.error("주소 수정 실패:", error);
+        throw error;
+      }
+    },
+    [fetchAddresses]
+  );
 
   // 주소 삭제
   const remove = useCallback(async (id: number) => {
@@ -97,11 +104,20 @@ export function AddressProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // 기본 주소 설정 (TODO: openapi-fetch로 PATCH/PUT 등 연동 필요)
-  const setDefault = useCallback((id: number) => {
-    // TODO: 실제 API 연동 후 setAddresses로 상태 갱신
-    setAddresses((prev) => prev.map((a) => ({ ...a, isDefault: a.id === id })));
-  }, []);
+  // 기본 주소 설정
+  const setDefault = useCallback(
+    async (id: number) => {
+      try {
+        await AddressService.setDefaultAddress(id);
+        // 서버에서 최신 데이터 조회
+        await fetchAddresses();
+      } catch (error) {
+        console.error("기본 주소 설정 실패:", error);
+        throw error;
+      }
+    },
+    [fetchAddresses]
+  );
 
   // 주소 전체 초기화
   const reset = useCallback(() => setAddresses([]), []);
