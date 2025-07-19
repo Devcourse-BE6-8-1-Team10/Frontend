@@ -11,11 +11,11 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 import { useAdminOrders } from "@/src/store/order/AdminOrderContext";
-import { OrderService } from "@/src/services/orderService";
 
 const OrderManagement: React.FC = () => {
   // fetchAdminOrders를 사용하여 관리자 주문 목록을 불러온다
-  const { orders, fetchAdminOrders, loading, error } = useOrders();
+  const { orders, fetchAdminOrders, loading, error, updateOrderStatus } =
+    useAdminOrders();
   const [changedOrders, setChangedOrders] = useState<Set<number>>(new Set());
   const [filteredOrders, setFilteredOrders] = useState<AdminOrder[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,15 +65,12 @@ const OrderManagement: React.FC = () => {
           (order) => order.id === orderId
         );
         if (orderToUpdate) {
-          await OrderService.updateOrderStatus(
-            orderToUpdate.id,
-            orderToUpdate.state
-          );
+          await updateOrderStatus(orderToUpdate.id, orderToUpdate.state);
         }
       }
       alert("변경사항이 저장되었습니다.");
       setChangedOrders(new Set());
-      await fetchAdminOrders(); // 저장 후 목록 새로고침
+      // fetchAdminOrders는 updateOrderStatus에서 이미 호출됨
     } catch (err) {
       console.error("Failed to save order changes:", err);
       alert("변경사항 저장에 실패했습니다.");

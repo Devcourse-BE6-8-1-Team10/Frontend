@@ -1,5 +1,6 @@
 import client from "@/src/lib/backend/client";
 import type { components } from "@/src/lib/backend/api/schema.d.ts";
+import type { OrderStatus } from "@/src/types/order";
 
 // 타입 정의
 type OrderDto = components["schemas"]["OrderDto"];
@@ -63,5 +64,17 @@ export class AdminService {
         price: item.price!,
       })) || [],
     };
+  }
+
+  // 관리자용 주문 상태 변경
+  static async updateOrderStatus(orderId: number, newStatus: OrderStatus): Promise<void> {
+    const { error } = await client.PUT("/api/adm/orders/{orderId}/status", {
+      params: { path: { orderId } },
+      body: { status: newStatus },
+    });
+
+    if (error) {
+      throw new Error("주문 상태 변경에 실패했습니다.");
+    }
   }
 } 
