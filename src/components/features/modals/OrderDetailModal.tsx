@@ -25,7 +25,7 @@ export default function OrderDetailModal({
     (sum, item) => sum + item.count * item.price,
     0
   );
-  const canModify = order.state === "ORDERED" || order.state === "주문완료";
+  const canModify = order.state === "ORDERED";
   const [selectedAddress, setSelectedAddress] = useState(order.customerAddress);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({

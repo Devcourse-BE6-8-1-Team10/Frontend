@@ -39,13 +39,26 @@ function formatOrderStatus(status: string) {
 }
 
 export default function OrdersPanel() {
-  const { orders } = useOrders();
+  const { orders, fetchOrderDetail } = useOrders();
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-  const openModal = (order: Order) => {
-    setSelectedOrder(order);
-    setIsModalOpen(true);
+  const openModal = async (order: Order) => {
+    setIsLoadingDetail(true);
+    try {
+      // 서버에서 최신 상세 정보 조회
+      const freshOrderDetail = await fetchOrderDetail(order.id);
+      setSelectedOrder(freshOrderDetail);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("주문 상세 정보 조회 실패:", error);
+      // 실패 시 기존 주문 정보로 대체
+      setSelectedOrder(order);
+      setIsModalOpen(true);
+    } finally {
+      setIsLoadingDetail(false);
+    }
   };
 
   return (
@@ -91,9 +104,10 @@ export default function OrdersPanel() {
                 </td>
                 <td className="p-3 text-right">
                   <Button
-                    text="상세보기"
+                    text={isLoadingDetail ? "로딩..." : "상세보기"}
                     onClick={() => openModal(order)}
                     className="text-sm"
+                    disabled={isLoadingDetail}
                   />
                 </td>
               </tr>
