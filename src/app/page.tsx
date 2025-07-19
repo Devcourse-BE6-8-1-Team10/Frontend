@@ -1,7 +1,5 @@
-import ProductSection from "@/src/components/features/home/ProductSection";
+import ProductSection from "@/src/components/features/product/ProductSection";
 
 export default function Home() {
-  return (
-      <ProductSection/>
-  )
+  return <ProductSection />;
 }

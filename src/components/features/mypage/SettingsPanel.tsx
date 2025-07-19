@@ -1,10 +1,10 @@
 import Button from "@/src/components/common/Button";
 import { Settings, LogOut, UserX } from "lucide-react";
-import { useUser } from "@/src/components/features/home/context/UserContext";
+import { useUser } from "@/src/store/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
-import CompleteModal from "@/src/components/features/modals/CompleteModal";
+import ConfirmModal from "@/src/components/features/order/ConfirmModal";
+import CompleteModal from "@/src/components/features/order/CompleteModal";
 
 export default function SettingsPanel() {
   const { clearUser, withdraw } = useUser();

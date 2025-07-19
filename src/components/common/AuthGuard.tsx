@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/src/components/features/home/context/UserContext";
-import CompleteModal from "@/src/components/features/modals/CompleteModal";
+import { useUser } from "@/src/store/auth";
+import CompleteModal from "@/src/components/features/order/CompleteModal";
 
 interface AuthGuardProps {
   children: React.ReactNode;

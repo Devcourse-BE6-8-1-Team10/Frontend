@@ -1,5 +1,5 @@
-import { Order } from "@/src/components/features/admin/types";
-import { Product } from "@/src/components/features/home/types";
+import { Order } from "@/src/types";
+import { Product } from "@/src/types";
 
 const mockProducts: Product[] = [
     {

@@ -7,7 +7,7 @@ import { PasswordInput } from "@/src/components/common/PasswordInput";
 import {
   validatePassword,
   validatePasswordConfirm,
-} from "@/src/lib/utils/validation";
+} from "@/src/utils/validation";
 
 // 비밀번호 변경 섹션: 마이페이지/회원정보수정 등에서 사용
 // 편집 모드/입력값 상태 관리, PasswordInput 공통 컴포넌트 사용

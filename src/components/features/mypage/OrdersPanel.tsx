@@ -3,11 +3,9 @@
 import { useState, useEffect } from "react";
 import Button from "@/src/components/common/Button";
 import { Search } from "lucide-react";
-import OrderDetailModal from "../modals/OrderDetailModal";
-import {
-  useOrders,
-  type Order,
-} from "@/src/components/features/home/context/OrderContext";
+import OrderDetailModal from "../order/OrderDetailModal";
+import { useOrders } from "@/src/store/order";
+import { Order } from "@/src/types";
 
 function formatOrderSummary(
   items: { name?: string; count: number; productId: number }[]

@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import Button from "@/src/components/common/Button";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
-import ConfirmModal from "@/src/components/features/modals/ConfirmModal";
-import CompleteModal from "@/src/components/features/modals/CompleteModal";
-import { useAddressContext } from "@/src/components/features/home/context/AddressContext";
+import ConfirmModal from "@/src/components/features/order/ConfirmModal";
+import CompleteModal from "@/src/components/features/order/CompleteModal";
+import { useAddressContext } from "@/src/store/address";
 
 export default function AddressPanel() {
   // ───────────────────────────────

@@ -1,12 +1,16 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Order, OrderStatus } from "@/src/components/features/home/context/OrderContext";
+import { Order, OrderStatus } from "@/src/types";
 import Button from "@/src/components/common/Button";
-import { FaPhone, FaMapMarkerAlt, FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { useOrders } from "@/src/components/features/home/context/OrderContext";
-import { OrderService } from "@/src/lib/backend/services/orderService";
-
+import {
+  FaPhone,
+  FaMapMarkerAlt,
+  FaChevronDown,
+  FaChevronUp,
+} from "react-icons/fa";
+import { useOrders } from "@/src/store/order";
+import { OrderService } from "@/src/services/orderService";
 
 const OrderManagement: React.FC = () => {
   const { orders, fetchOrders, loading, error } = useOrders();
@@ -26,13 +30,17 @@ const OrderManagement: React.FC = () => {
     if (searchTerm) {
       updatedOrders = updatedOrders.filter(
         (order) =>
-          order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.customerEmail
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
           order.id.toString().includes(searchTerm.toLowerCase())
       );
     }
 
     if (statusFilter !== "All") {
-      updatedOrders = updatedOrders.filter((order) => order.state === statusFilter);
+      updatedOrders = updatedOrders.filter(
+        (order) => order.state === statusFilter
+      );
     }
 
     setFilteredOrders(updatedOrders);
@@ -50,9 +58,14 @@ const OrderManagement: React.FC = () => {
   const handleSave = async () => {
     try {
       for (const orderId of changedOrders) {
-        const orderToUpdate = filteredOrders.find((order) => order.id === orderId);
+        const orderToUpdate = filteredOrders.find(
+          (order) => order.id === orderId
+        );
         if (orderToUpdate) {
-          await OrderService.updateOrderStatus(orderToUpdate.id, orderToUpdate.state);
+          await OrderService.updateOrderStatus(
+            orderToUpdate.id,
+            orderToUpdate.state
+          );
         }
       }
       alert("변경사항이 저장되었습니다.");
@@ -107,7 +120,9 @@ const OrderManagement: React.FC = () => {
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 min-h-screen">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-800">주문 관리</h1>
-        <p className="text-gray-500 mt-2">주문 내역을 확인하고 상태를 변경하세요.</p>
+        <p className="text-gray-500 mt-2">
+          주문 내역을 확인하고 상태를 변경하세요.
+        </p>
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -122,7 +137,9 @@ const OrderManagement: React.FC = () => {
           <select
             className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "All")}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as OrderStatus | "All")
+            }
           >
             {statusOptions.map((status) => (
               <option key={status.value} value={status.value}>
@@ -145,22 +162,40 @@ const OrderManagement: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredOrders.map((order) => {
           const isExpanded = expandedOrders.has(order.id);
-          const itemsToShow = isExpanded ? order.orderItems : order.orderItems.slice(0, 2);
+          const itemsToShow = isExpanded
+            ? order.orderItems
+            : order.orderItems.slice(0, 2);
 
           return (
-            <div key={order.id} className={`bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-xl flex flex-col ${changedOrders.has(order.id) ? "ring-2 ring-yellow-400" : ""}`}>
+            <div
+              key={order.id}
+              className={`bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-xl flex flex-col ${
+                changedOrders.has(order.id) ? "ring-2 ring-yellow-400" : ""
+              }`}
+            >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <div className="text-lg font-bold text-gray-800">#{order.id}</div>
-                  <div className="text-sm text-gray-500">{new Date(order.createdDate).toLocaleDateString()}</div>
+                  <div className="text-lg font-bold text-gray-800">
+                    #{order.id}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {new Date(order.createdDate).toLocaleDateString()}
+                  </div>
                 </div>
-                <div className={`text-xs font-bold py-1 px-3 rounded-full ${getStatusBadgeColor(order.state)}`}>
-                  {statusOptions.find(option => option.value === order.state)?.label || order.state}
+                <div
+                  className={`text-xs font-bold py-1 px-3 rounded-full ${getStatusBadgeColor(
+                    order.state
+                  )}`}
+                >
+                  {statusOptions.find((option) => option.value === order.state)
+                    ?.label || order.state}
                 </div>
               </div>
 
               <div className="mb-4">
-                <div className="text-lg font-semibold text-gray-800">{order.customerEmail}</div>
+                <div className="text-lg font-semibold text-gray-800">
+                  {order.customerEmail}
+                </div>
                 <div className="flex items-center text-sm text-gray-600 mt-1">
                   <FaMapMarkerAlt className="mr-2" />
                   {order.customerAddress}
@@ -172,15 +207,27 @@ const OrderManagement: React.FC = () => {
                 <ul className="space-y-2">
                   {itemsToShow.map((item, index) => (
                     <li key={index} className="flex justify-between text-sm">
-                      <span>{item.name || `상품 ID: ${item.productId}`} x {item.count}</span>
-                      <span>{(item.price * item.count).toLocaleString()}원</span>
+                      <span>
+                        {item.name || `상품 ID: ${item.productId}`} x{" "}
+                        {item.count}
+                      </span>
+                      <span>
+                        {(item.price * item.count).toLocaleString()}원
+                      </span>
                     </li>
                   ))}
                 </ul>
                 {order.orderItems.length > 2 && (
-                  <button onClick={() => toggleExpandOrder(order.id)} className="text-sm text-blue-500 hover:underline mt-2 flex items-center">
+                  <button
+                    onClick={() => toggleExpandOrder(order.id)}
+                    className="text-sm text-blue-500 hover:underline mt-2 flex items-center"
+                  >
                     {isExpanded ? "접기" : "더보기"}
-                    {isExpanded ? <FaChevronUp className="ml-1" /> : <FaChevronDown className="ml-1" />}
+                    {isExpanded ? (
+                      <FaChevronUp className="ml-1" />
+                    ) : (
+                      <FaChevronDown className="ml-1" />
+                    )}
                   </button>
                 )}
               </div>
@@ -189,12 +236,17 @@ const OrderManagement: React.FC = () => {
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-bold text-gray-800">총 가격</span>
                   <span className="font-bold text-xl text-blue-600">
-                    {order.orderItems.reduce((sum, item) => sum + item.price * item.count, 0).toLocaleString()}원
+                    {order.orderItems
+                      .reduce((sum, item) => sum + item.price * item.count, 0)
+                      .toLocaleString()}
+                    원
                   </span>
                 </div>
                 <select
                   value={order.state}
-                  onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
+                  onChange={(e) =>
+                    handleStatusChange(order.id, e.target.value as OrderStatus)
+                  }
                   className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {statusOptions.slice(1).map((status) => (

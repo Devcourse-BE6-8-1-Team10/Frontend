@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Modal } from "@/src/components/common/Modal";
 import { Input } from "@/src/components/common/Input";
 import Button from "@/src/components/common/Button";
-import { Product } from "@/src/components/features/home/types";
-import { ProductService } from "@/src/lib/backend/services";
+import { Product } from "@/src/types";
+import { ProductService } from "@/src/services";
 
 interface AddEditMenuModalProps {
   isOpen: boolean;
@@ -34,7 +34,7 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
       setPrice(editingProduct.price);
       setCategory(editingProduct.category);
       setDescription(editingProduct.description);
-      setImageFile(null); 
+      setImageFile(null);
       setImagePreview(editingProduct.imageUrl);
       setOrderable(editingProduct.orderable);
     } else {
@@ -77,14 +77,19 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
     try {
       let savedProduct: Product;
       if (editingProduct) {
-        savedProduct = await ProductService.updateProduct(editingProduct.id, { product: productData, file: imageFile });
+        savedProduct = await ProductService.updateProduct(editingProduct.id, {
+          product: productData,
+          file: imageFile,
+        });
       } else {
-        savedProduct = await ProductService.createProduct({ product: productData, file: imageFile });
+        savedProduct = await ProductService.createProduct({
+          product: productData,
+          file: imageFile,
+        });
       }
       setImagePreview(savedProduct.imageUrl);
       onSave(savedProduct);
       onClose();
-
     } catch (error) {
       console.error("Failed to save product:", error);
       alert("상품 저장에 실패했습니다.");
@@ -101,7 +106,10 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
         </h2>
         <form onSubmit={handleSubmit} className="space-y-7">
           <div>
-            <label htmlFor="name" className="block text-gray-700 text-sm font-semibold mb-2">
+            <label
+              htmlFor="name"
+              className="block text-gray-700 text-sm font-semibold mb-2"
+            >
               메뉴 이름
             </label>
             <Input
@@ -114,7 +122,10 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
             />
           </div>
           <div>
-            <label htmlFor="price" className="block text-gray-700 text-sm font-semibold mb-2">
+            <label
+              htmlFor="price"
+              className="block text-gray-700 text-sm font-semibold mb-2"
+            >
               가격
             </label>
             <Input
@@ -127,7 +138,10 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
             />
           </div>
           <div>
-            <label htmlFor="category" className="block text-gray-700 text-sm font-semibold mb-2 whitespace-nowrap">
+            <label
+              htmlFor="category"
+              className="block text-gray-700 text-sm font-semibold mb-2 whitespace-nowrap"
+            >
               카테고리
             </label>
             <Input
@@ -140,7 +154,10 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-gray-700 text-sm font-semibold mb-2">
+            <label
+              htmlFor="description"
+              className="block text-gray-700 text-sm font-semibold mb-2"
+            >
               설명
             </label>
             <Input
@@ -153,7 +170,10 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
             />
           </div>
           <div>
-            <label htmlFor="image" className="block text-gray-700 text-sm font-semibold mb-2">
+            <label
+              htmlFor="image"
+              className="block text-gray-700 text-sm font-semibold mb-2"
+            >
               이미지 파일
             </label>
             <input
@@ -165,7 +185,11 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
             />
             {imagePreview && (
               <div className="mt-6 flex justify-center">
-                <img src={imagePreview} alt="Image Preview" className="max-w-full h-48 object-cover rounded-lg shadow-md border border-gray-200" />
+                <img
+                  src={imagePreview}
+                  alt="Image Preview"
+                  className="max-w-full h-48 object-cover rounded-lg shadow-md border border-gray-200"
+                />
               </div>
             )}
           </div>
@@ -177,7 +201,10 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
               onChange={(e) => setOrderable(!e.target.checked)}
               className="h-5 w-5 text-red-600 focus:ring-red-500 border-gray-300 rounded"
             />
-            <label htmlFor="soldOut" className="ml-2 block text-gray-700 text-sm font-semibold">
+            <label
+              htmlFor="soldOut"
+              className="ml-2 block text-gray-700 text-sm font-semibold"
+            >
               품절
             </label>
           </div>
@@ -205,4 +232,3 @@ const AddEditMenuModal: React.FC<AddEditMenuModalProps> = ({
 };
 
 export default AddEditMenuModal;
-

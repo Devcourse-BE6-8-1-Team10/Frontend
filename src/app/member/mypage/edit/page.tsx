@@ -5,14 +5,14 @@ import { Input } from "@/src/components/common/Input";
 import { useRouter } from "next/navigation";
 import PasswordChangeSection from "@/src/components/features/mypage/PasswordChangeSection";
 import Button from "@/src/components/common/Button";
-import { useUser } from "@/src/components/features/home/context/UserContext";
+import { useUser } from "@/src/store/auth";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
-import CompleteModal from "@/src/components/features/modals/CompleteModal";
-import { AuthService } from "@/src/lib/backend/services/authService";
+import CompleteModal from "@/src/components/features/order/CompleteModal";
+import { AuthService } from "@/src/services/authService";
 import {
   validatePassword,
   validatePasswordConfirm,
-} from "@/src/lib/utils/validation";
+} from "@/src/utils/validation";
 
 export default function EditProfilePage() {
   const router = useRouter();

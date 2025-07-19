@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { LoginModal } from "@/src/components/features/modals/LoginModal";
+import { LoginModal } from "@/src/components/features/auth/LoginModal";
 import { AuthGuard } from "@/src/components/common/AuthGuard";
 
 export default function LoginPage() {
