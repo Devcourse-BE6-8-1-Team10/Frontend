@@ -9,13 +9,15 @@ import {
   type Order,
 } from "@/src/components/features/home/context/OrderContext";
 
-function formatOrderSummary(items: { name?: string; count: number }[]) {
+function formatOrderSummary(
+  items: { name?: string; count: number; productId: number }[]
+) {
   if (items.length === 0) return "-";
   const firstItem = items[0];
   const extraCount = items.length - 1;
   return extraCount > 0
-    ? `${firstItem.name ?? `상품${firstItem.count}`} 외 ${extraCount}건`
-    : `${firstItem.name ?? `상품${firstItem.count}`}`;
+    ? `${firstItem.name ?? `상품${firstItem.productId}`} 외 ${extraCount}건`
+    : `${firstItem.name ?? `상품${firstItem.productId}`}`;
 }
 
 function getTotalPrice(items: { count: number; price: number }[]) {
@@ -24,6 +26,21 @@ function getTotalPrice(items: { count: number; price: number }[]) {
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("ko-KR");
+}
+
+function formatOrderStatus(status: string) {
+  const statusMap: Record<string, string> = {
+    ORDERED: "주문 접수",
+    PAID: "결제 완료",
+    SHIPPING: "배송중",
+    COMPLETED: "배송완료",
+    CANCELED: "취소됨",
+    "접수 전": "주문 접수",
+    배송중: "배송중",
+    배송완료: "배송완료",
+    취소됨: "취소됨",
+  };
+  return statusMap[status] || status;
 }
 
 export default function OrdersPanel() {
@@ -67,7 +84,9 @@ export default function OrdersPanel() {
                 <td className="p-3 text-gray-900">
                   {formatDate(order.createdDate)}
                 </td>
-                <td className="p-3 text-gray-900">{order.state}</td>
+                <td className="p-3 text-gray-900">
+                  {formatOrderStatus(order.state)}
+                </td>
                 <td className="p-3 text-gray-900">
                   {formatOrderSummary(order.orderItems)}
                 </td>

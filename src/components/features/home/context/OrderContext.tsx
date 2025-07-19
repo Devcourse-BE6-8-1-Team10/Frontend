@@ -9,6 +9,7 @@ import {
   useEffect,
 } from "react";
 import { useUser } from "@/src/components/features/home/context/UserContext";
+import { OrderService } from "@/src/lib/backend/services/orderService";
 
 // 서버 스키마 기반 + 프론트 전용 상품명(name)만 추가
 export interface OrderItem {
@@ -53,112 +54,62 @@ interface OrderContextType {
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
-// 더미 데이터 (orderItems에만 name 필드 추가)
-const defaultOrders: Order[] = [
-  {
-    id: 123458,
-    customerEmail: "kimcs@example.com",
-    createdDate: "2025-07-15T10:00:00",
-    state: "접수 전",
-    customerAddress: "서울시 강남구 테헤란로 123",
-    orderItems: [
-      {
-        id: 1,
-        orderId: 123458,
-        productId: 1,
-        count: 2,
-        price: 3000,
-        name: "아메리카노",
-      },
-      {
-        id: 2,
-        orderId: 123458,
-        productId: 2,
-        count: 1,
-        price: 4500,
-        name: "카페모카",
-      },
-      {
-        id: 3,
-        orderId: 123458,
-        productId: 3,
-        count: 1,
-        price: 4000,
-        name: "티라떼",
-      },
-    ],
-  },
-  {
-    id: 123457,
-    customerEmail: "kimcs@example.com",
-    createdDate: "2025-07-10T14:30:00",
-    state: "배송중",
-    customerAddress: "서울특별시 종로구 사직로 9",
-    orderItems: [
-      {
-        id: 4,
-        orderId: 123457,
-        productId: 4,
-        count: 1,
-        price: 4500,
-        name: "콜드브루",
-      },
-    ],
-  },
-  {
-    id: 123456,
-    customerEmail: "kimcs@example.com",
-    createdDate: "2025-07-01T09:15:00",
-    state: "배송완료",
-    customerAddress: "서울특별시 마포구 상암동 123",
-    orderItems: [
-      {
-        id: 5,
-        orderId: 123456,
-        productId: 1,
-        count: 1,
-        price: 3000,
-        name: "아메리카노",
-      },
-      {
-        id: 6,
-        orderId: 123456,
-        productId: 5,
-        count: 1,
-        price: 4000,
-        name: "카페라떼",
-      },
-    ],
-  },
-];
-
 export function OrderProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      setOrders(defaultOrders);
-    } else {
-      setOrders([]);
-    }
-  }, [user]);
-
+  // 회원 주문 목록 조회
   const fetchOrders = useCallback(async () => {
+    if (!user) {
+      setOrders([]);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setOrders(defaultOrders);
+      const memberOrders = await OrderService.getMemberOrders();
+
+      // 서버 응답을 프론트엔드 Order 타입으로 변환
+      const convertedOrders: Order[] = memberOrders.map((order) => ({
+        id: order.orderId,
+        customerEmail: user?.email || "", // 현재 로그인한 사용자 이메일 사용
+        createdDate: order.orderDate,
+        state: order.status,
+        customerAddress: order.customerAddress,
+        orderItems: order.orderItems.map((item, idx) => ({
+          id: idx, // 임시 ID
+          orderId: order.orderId,
+          productId: item.productId,
+          count: item.count,
+          price: item.price,
+          name: item.productName,
+        })),
+      }));
+
+      setOrders(convertedOrders);
     } catch (err) {
-      setError("주문 목록을 불러오는데 실패했습니다.");
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "주문 목록을 불러오는데 실패했습니다.";
+      setError(errorMessage);
       console.error("주문 목록 조회 실패:", err);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchOrders();
+    } else {
+      setOrders([]);
+    }
+  }, [user, fetchOrders]);
 
   const createOrder = useCallback(
     async (orderData: CreateOrderData): Promise<Order> => {
