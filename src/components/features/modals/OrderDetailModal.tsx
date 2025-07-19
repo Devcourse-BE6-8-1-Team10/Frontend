@@ -25,7 +25,7 @@ export default function OrderDetailModal({
     (sum, item) => sum + item.count * item.price,
     0
   );
-  const canModify = order.state === "접수 전";
+  const canModify = order.state === "ORDERED";
   const [selectedAddress, setSelectedAddress] = useState(order.customerAddress);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({
@@ -54,6 +54,16 @@ export default function OrderDetailModal({
     return new Date(dateString).toLocaleDateString("ko-KR");
   }
 
+  function formatOrderStatus(status: string) {
+    const statusMap: Record<string, string> = {
+      ORDERED: "주문완료",
+      SHIPPING: "배송중",
+      COMPLETED: "배송완료",
+      CANCELED: "주문취소",
+    };
+    return statusMap[status] || status;
+  }
+
   return (
     <Modal onClose={onClose} size="large">
       <ModalContent size="large" className="p-10">
@@ -75,7 +85,7 @@ export default function OrderDetailModal({
                 <div className="flex justify-between">
                   <dt className="text-gray-500">상태</dt>
                   <dd className="text-orange-600 font-semibold">
-                    {order.state}
+                    {formatOrderStatus(order.state)}
                   </dd>
                 </div>
               </dl>
