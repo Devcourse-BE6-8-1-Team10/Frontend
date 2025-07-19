@@ -34,11 +34,13 @@ export default function RootLayout({
         <UserProvider>
           <CartProvider>
             <AddressProvider>
-              <Header />
-              <main className="flex-1 w-full pb-14">
-                <div className="max-w-7xl mx-auto px-4">{children}</div>
-              </main>
-              <Footer />
+              <OrderProvider>
+                <Header />
+                <main className="flex-1 w-full pb-14">
+                  <div className="max-w-7xl mx-auto px-4">{children}</div>
+                </main>
+                <Footer />
+              </OrderProvider>
             </AddressProvider>
           </CartProvider>
         </UserProvider>
