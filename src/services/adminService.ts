@@ -37,7 +37,7 @@ export class AdminService {
 
   // 주문 상세 조회 (관리자용)
   static async getOrderDetail(orderId: number): Promise<OrderDto> {
-    const { data: response, error } = await client.GET("/api/orders/{orderId}/detail", {
+    const { data: response, error } = await client.GET("/api/adm/orders/{orderId}/detail", {
       params: { path: { orderId } },
     });
 

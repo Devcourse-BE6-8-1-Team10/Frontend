@@ -3,7 +3,8 @@ import type { components } from "@/src/lib/backend/api/schema.d.ts";
 
 // 타입 정의
 type OrderCreateReqBody = components["schemas"]["OrderCreateReqBody"];
-import { OrderStatus } from "@/src/types/order";
+export type { OrderStatus } from "@/src/types/order";
+import type { OrderStatus } from "@/src/types/order";
 
 type OrderUpdateAddressReqBody = components["schemas"]["OrderUpdateAddressReqBody"];
 type OrderUpdateStatusReqBody = { status: OrderStatus };
@@ -130,22 +131,7 @@ export class OrderService {
       })) || [],
     };
   }
-
-  // 관리자용 주문 목록 조회
-  static async getOrders(): Promise<Order[]> {
-    const { data: response, error } = await client.GET("/api/adm/orders");
-
-    if (error) {
-      throw new Error("주문 목록 조회에 실패했습니다.");
-    }
-
-    if (!response?.data) {
-      return [];
-    }
-
-    return response.data;
-  }
-
+  
   // 주문 취소
   static async cancelOrder(orderId: number): Promise<void> {
     const { error } = await client.DELETE("/api/orders/{orderId}", {
