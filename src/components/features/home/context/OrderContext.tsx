@@ -111,38 +111,40 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     }
   }, [user, fetchOrders]);
 
+  // 주문 생성
   const createOrder = useCallback(
     async (orderData: CreateOrderData): Promise<Order> => {
       setLoading(true);
       setError(null);
       try {
-        // 실제 서버에선 name 없이 productId, count만 전송, 프론트에서 name 매핑 필요
-        const newOrder: Order = {
-          id: Date.now(),
-          customerEmail: orderData.customerEmail,
-          createdDate: new Date().toISOString(),
-          state: "접수 전",
+        // 서버에 주문 생성 요청
+        await OrderService.createOrder({
           customerAddress: orderData.customerAddress,
-          orderItems: orderData.orderItems.map((item, idx) => ({
-            id: Date.now() + idx,
-            orderId: Date.now(),
-            productId: item.productId,
-            count: item.count,
-            price: 3000, // TODO: 실제 상품 가격 매핑 필요
-            name: `상품${item.productId}`, // 프론트 전용, 실제 서버 컬럼명에 맞게 교체 필요
-          })),
-        };
-        setOrders((prev) => [newOrder, ...prev]);
-        return newOrder;
+          orderItems: orderData.orderItems,
+        });
+
+        // 주문 목록 새로고침 (서버에서 최신 데이터 조회)
+        await fetchOrders();
+
+        // 새로 생성된 주문을 찾아서 반환 (첫 번째 주문이 가장 최신)
+        const latestOrder = orders[0];
+        if (latestOrder) {
+          return latestOrder;
+        }
+
+        // 주문을 찾지 못한 경우 기본값 반환
+        throw new Error("생성된 주문을 찾을 수 없습니다.");
       } catch (err) {
-        setError("주문 생성에 실패했습니다.");
+        const errorMessage =
+          err instanceof Error ? err.message : "주문 생성에 실패했습니다.";
+        setError(errorMessage);
         console.error("주문 생성 실패:", err);
         throw err;
       } finally {
         setLoading(false);
       }
     },
-    []
+    [orders, fetchOrders]
   );
 
   const cancelOrder = useCallback(async (orderId: number) => {
