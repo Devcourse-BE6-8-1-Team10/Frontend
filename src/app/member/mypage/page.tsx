@@ -8,57 +8,35 @@ import AddressPanel from "@/src/components/features/mypage/AddressPanel";
 import OrdersPanel from "@/src/components/features/mypage/OrdersPanel";
 import SettingsPanel from "@/src/components/features/mypage/SettingsPanel";
 import { useUser } from "@/src/components/features/home/context/UserContext";
+import { AuthGuard } from "@/src/components/common/AuthGuard";
 
 export default function Mypage() {
   const [activeTab, setActiveTab] = useState<
     "info" | "address" | "orders" | "settings"
   >("info");
 
-  const { user, isAuthenticated, fetchUserInfo } = useUser();
-  const router = useRouter();
+  const { user, fetchUserInfo } = useUser();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      // 인증되지 않은 경우 메인 페이지로 리다이렉트
-      router.push("/");
-      return;
-    }
-
-    if (!user) {
-      // 인증은 되었지만 사용자 정보가 없는 경우 fetch
+    if (user) {
+      // 사용자 정보가 있으면 fetchUserInfo 호출 (최신 정보로 업데이트)
       fetchUserInfo();
     }
-  }, [isAuthenticated, user, fetchUserInfo, router]);
-
-  // 인증되지 않은 경우 로딩 표시
-  if (!isAuthenticated) {
-    return (
-      <main className="max-w-7xl mx-auto py-12 px-4">
-        <div>로그인 페이지로 이동 중...</div>
-      </main>
-    );
-  }
-
-  // 사용자 정보 로딩 중
-  if (!user) {
-    return (
-      <main className="max-w-7xl mx-auto py-12 px-4">
-        <div>사용자 정보를 불러오는 중...</div>
-      </main>
-    );
-  }
+  }, [user, fetchUserInfo]);
 
   return (
-    <main className="max-w-7xl mx-auto py-12 px-4">
-      <h1 className="text-2xl font-semibold mb-6">마이 페이지</h1>
-      <MypageTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+    <AuthGuard requireAuth={true}>
+      <main className="max-w-7xl mx-auto py-12 px-4">
+        <h1 className="text-2xl font-semibold mb-6">마이 페이지</h1>
+        <MypageTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <div className="mt-8">
-        {activeTab === "info" && <UserInfoPanel />}
-        {activeTab === "address" && <AddressPanel />}
-        {activeTab === "orders" && <OrdersPanel />}
-        {activeTab === "settings" && <SettingsPanel />}
-      </div>
-    </main>
+        <div className="mt-8">
+          {activeTab === "info" && <UserInfoPanel />}
+          {activeTab === "address" && <AddressPanel />}
+          {activeTab === "orders" && <OrdersPanel />}
+          {activeTab === "settings" && <SettingsPanel />}
+        </div>
+      </main>
+    </AuthGuard>
   );
 }

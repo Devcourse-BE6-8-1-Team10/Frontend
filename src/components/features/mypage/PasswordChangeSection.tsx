@@ -8,19 +8,15 @@ import { PasswordInput } from "@/src/components/common/PasswordInput";
 // 비밀번호 변경 섹션: 마이페이지/회원정보수정 등에서 사용
 // 편집 모드/입력값 상태 관리, PasswordInput 공통 컴포넌트 사용
 interface Props {
-  currentPassword: string; // 현재 비밀번호
   password: string; // 새 비밀번호
   confirmPassword: string; // 새 비밀번호 확인
-  setCurrentPassword: (v: string) => void;
   setPassword: (v: string) => void;
   setConfirmPassword: (v: string) => void;
 }
 
 export default function PasswordChangeSection({
-  currentPassword,
   password,
   confirmPassword,
-  setCurrentPassword,
   setPassword,
   setConfirmPassword,
 }: Props) {
@@ -29,7 +25,6 @@ export default function PasswordChangeSection({
 
   // 입력값 초기화 및 편집 종료
   const reset = () => {
-    setCurrentPassword("");
     setPassword("");
     setConfirmPassword("");
     setIsEditing(false);
@@ -50,18 +45,6 @@ export default function PasswordChangeSection({
   // 편집 모드: 비밀번호 입력 폼 노출
   return (
     <div className="space-y-4">
-      <div className="w-full max-w-md">
-        <label className="block text-sm text-gray-600 mb-1">
-          현재 비밀번호
-        </label>
-        {/* 현재 비밀번호 입력 */}
-        <PasswordInput
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          placeholder="현재 비밀번호를 입력해 주세요"
-        />
-      </div>
-
       <div className="w-full max-w-md">
         <label className="block text-sm text-gray-600 mb-1">새 비밀번호</label>
         {/* 새 비밀번호 입력 */}

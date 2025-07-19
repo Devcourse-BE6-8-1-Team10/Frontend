@@ -6,6 +6,7 @@ import {
   useState,
   ReactNode,
   useCallback,
+  useEffect,
 } from "react";
 import { AuthService } from "../../../../lib/backend/services";
 
@@ -22,13 +23,14 @@ export interface UserInfo {
 interface UserContextType {
   user: UserInfo | null; // 현재 로그인한 사용자 정보
   isAuthenticated: boolean; // 로그인 여부
+  isInitialized: boolean; // 초기화 완료 여부
   setUser: (user: UserInfo) => void; // 직접 사용자 정보 설정(내부용)
   clearUser: () => void; // 사용자 정보/인증 상태 초기화(로그아웃)
-  fetchUserInfo: () => Promise<void>; // 사용자 정보 새로고침 (TODO: API 연동 필요)
-  login: (email: string, password: string) => Promise<void>; // 로그인 (TODO: API 연동 필요)
-  signup: (name: string, email: string, password: string) => Promise<void>; // 회원가입 (TODO: API 연동 필요)
-  updateUserInfo: (data: { name?: string; password?: string }) => Promise<void>; // 회원정보 수정 (TODO: API 연동 필요)
-  withdraw: () => Promise<void>; // 회원 탈퇴 (TODO: API 연동 필요)
+  fetchUserInfo: () => Promise<void>; // 사용자 정보 조회회
+  login: (email: string, password: string) => Promise<void>; // 로그인
+  signup: (name: string, email: string, password: string) => Promise<void>; // 회원가입
+  updateUserInfo: (data: { name?: string; password?: string }) => Promise<void>; // 회원정보 수정
+  withdraw: () => Promise<void>; // 회원 탈퇴
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -46,6 +48,25 @@ export const useUser = () => {
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   // 현재 로그인한 사용자 정보 (null이면 미로그인)
   const [user, setUserState] = useState<UserInfo | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // 초기화 시 사용자 정보 조회 (쿠키에 토큰이 있으면 자동 로그인)
+  useEffect(() => {
+    const initializeUser = async () => {
+      try {
+        const userInfo = await AuthService.getUserInfo();
+        setUserState(userInfo);
+      } catch (error) {
+        // 토큰이 없거나 만료된 경우 로그인되지 않은 상태로 처리
+        console.log("사용자 정보 조회 실패 (로그인되지 않음):", error);
+        setUserState(null);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+
+    initializeUser();
+  }, []);
 
   // 내부용: 사용자 정보 직접 설정
   const setUser = (user: UserInfo) => {
@@ -54,13 +75,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // 로그아웃: 사용자 정보 초기화
   const clearUser = useCallback(async () => {
+    // 로컬 상태를 먼저 초기화 (즉시 UI 반영)
+    setUserState(null);
+
     try {
       await AuthService.logout();
-      setUserState(null);
     } catch (error) {
       console.error("로그아웃 오류:", error);
-      // 로그아웃 실패해도 로컬 상태는 초기화
-      setUserState(null);
+      // 서버 로그아웃 실패해도 로컬 상태는 이미 초기화됨
     }
   }, []);
 
@@ -90,8 +112,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const signup = useCallback(
     async (name: string, email: string, password: string) => {
       try {
-        const userInfo = await AuthService.signup({ email, password, name });
-        setUserState(userInfo);
+        await AuthService.signup({ email, password, name });
       } catch (error) {
         console.error("회원가입 오류:", error);
         throw error;
@@ -100,7 +121,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
-  // 회원정보 수정 (AuthService 사용)
+  // 회원정보 수정
   const updateUserInfo = useCallback(
     async (data: { name?: string; password?: string }) => {
       try {
@@ -142,6 +163,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       value={{
         user,
         isAuthenticated: !!user,
+        isInitialized,
         setUser,
         clearUser,
         fetchUserInfo,
