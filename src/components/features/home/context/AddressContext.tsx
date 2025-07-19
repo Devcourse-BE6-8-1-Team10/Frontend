@@ -20,11 +20,12 @@ export interface Address {
 // AddressContext에서 제공하는 값/함수 타입
 interface AddressContextType {
   addresses: Address[];
-  add: (address: string) => void; // TODO: 실제 API 연동 필요
+  add: (address: string) => Promise<void>;
   edit: (id: number, newAddress: string) => void; // TODO: 실제 API 연동 필요
-  remove: (id: number) => void; // TODO: 실제 API 연동 필요
+  remove: (id: number) => Promise<void>;
   setDefault: (id: number) => void; // TODO: 실제 API 연동 필요
   reset: () => void; // TODO: 실제 API 연동 필요
+  fetchAddresses: () => Promise<void>;
 }
 
 const AddressContext = createContext<AddressContextType | undefined>(undefined);
@@ -42,7 +43,7 @@ export function AddressProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  // 주소 목록 조회 함수
+  // 주소 목록 조회
   const fetchAddresses = useCallback(async () => {
     try {
       const addressList = await AddressService.getAddressList();
@@ -53,17 +54,22 @@ export function AddressProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // 주소 추가 (TODO: openapi-fetch로 /api/addresses POST 연동 필요)
-  const add = useCallback((address: string) => {
-    // TODO: 실제 API 연동 후 setAddresses로 상태 갱신
-    setAddresses((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        content: address,
-        isDefault: prev.length === 0,
-      },
-    ]);
+  // 주소 등록
+  const add = useCallback(async (address: string) => {
+    try {
+      const newAddress = await AddressService.submitAddress(address);
+      setAddresses((prev) => [
+        ...prev,
+        {
+          id: newAddress.id,
+          content: newAddress.content,
+          isDefault: prev.length === 0,
+        },
+      ]);
+    } catch (error) {
+      console.error("주소 등록 실패:", error);
+      throw error;
+    }
   }, []);
 
   // 주소 수정 (TODO: openapi-fetch로 /api/addresses/{id} PUT 연동 필요)
@@ -74,16 +80,21 @@ export function AddressProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  // 주소 삭제 (TODO: openapi-fetch로 /api/addresses/{id} DELETE 연동 필요)
-  const remove = useCallback((id: number) => {
-    // TODO: 실제 API 연동 후 setAddresses로 상태 갱신
-    setAddresses((prev) => {
-      const updated = prev.filter((a) => a.id !== id);
-      const hasDefault = updated.some((a) => a.isDefault);
-      return hasDefault
-        ? updated
-        : updated.map((a, i) => (i === 0 ? { ...a, isDefault: true } : a));
-    });
+  // 주소 삭제
+  const remove = useCallback(async (id: number) => {
+    try {
+      await AddressService.deleteAddress(id);
+      setAddresses((prev) => {
+        const updated = prev.filter((a) => a.id !== id);
+        const hasDefault = updated.some((a) => a.isDefault);
+        return hasDefault
+          ? updated
+          : updated.map((a, i) => (i === 0 ? { ...a, isDefault: true } : a));
+      });
+    } catch (error) {
+      console.error("주소 삭제 실패:", error);
+      throw error;
+    }
   }, []);
 
   // 기본 주소 설정 (TODO: openapi-fetch로 PATCH/PUT 등 연동 필요)
@@ -97,7 +108,15 @@ export function AddressProvider({ children }: { children: ReactNode }) {
 
   return (
     <AddressContext.Provider
-      value={{ addresses, add, edit, remove, setDefault, reset }}
+      value={{
+        addresses,
+        add,
+        edit,
+        remove,
+        setDefault,
+        reset,
+        fetchAddresses,
+      }}
     >
       {children}
     </AddressContext.Provider>
